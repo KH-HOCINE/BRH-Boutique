@@ -26,7 +26,7 @@
 }
 
 .logo-image {
-  height: 60px; /* réduit depuis 130px pour que ça tienne sur mobile */
+  height: 130px; /* réduit depuis 130px pour que ça tienne sur mobile */
   width: auto;
   display: block;
 }

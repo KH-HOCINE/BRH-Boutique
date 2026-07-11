@@ -5,7 +5,7 @@ import ProductCard from '../components/shop/ProductCard';
 import { useT }    from '../translations';
 import { FaFacebookF, FaInstagram, FaTiktok } from 'react-icons/fa';
 import animeBg from '../images/anime.jpg';
-import Logo    from '../images/Logo.jpg';
+import Logo    from '../images/Logo.png';
 import tshirtImg from '../images/tshirt.jpg';
 import './CustomSection.css';
 import api     from '../utils/api';

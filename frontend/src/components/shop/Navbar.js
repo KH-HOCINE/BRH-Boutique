@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { useSearch } from '../../context/SearchContext';
 import { useLang, LANGUAGES } from '../../context/LanguageContext';
 import { useT } from '../../translations';
-import Logo from '../../images/Logo.jpg';
+import Logo from '../../images/Logo.png';
 import './Navbar.css';
 
 export default function Navbar() {
