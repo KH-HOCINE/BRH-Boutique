@@ -1,0 +1,190 @@
+/* ── Section Personnalisation ───────────────────────────── */
+.custom-section {
+  padding: 100px 0;
+  background: #f7f5f2;
+  overflow: hidden;
+}
+
+.custom-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  gap: 80px;
+}
+
+/* T-shirt visual */
+.custom-tshirt-wrap {
+  position: relative;
+  flex: 0 0 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-tshirt-wrap img {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.10));
+}
+
+.custom-design-zone {
+  position: absolute;
+  top: 22%;
+  left: 28%;
+  width: 44%;
+  height: 40%;
+  border: 2px dashed #c0392b;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.custom-design-zone svg {
+  color: #c0392b;
+  opacity: 0.8;
+}
+
+.custom-design-zone span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #c0392b;
+  opacity: 0.8;
+}
+
+/* Text side */
+.custom-text {
+  flex: 1;
+}
+
+.custom-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #c0392b;
+  margin-bottom: 20px;
+}
+
+.custom-title {
+  font-size: clamp(48px, 5vw, 76px);
+  line-height: 1.0;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 24px;
+  letter-spacing: -2px;
+}
+
+.custom-title em {
+  font-style: italic;
+  font-weight: 800;
+}
+
+.custom-divider {
+  width: 48px;
+  height: 3px;
+  background: #111;
+  margin-bottom: 24px;
+}
+
+.custom-desc {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.custom-specs {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 36px;
+}
+
+.custom-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #111;
+  color: #fff;
+  text-decoration: none;
+  padding: 16px 36px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border: 2px solid #111;
+  margin-bottom: 20px;
+}
+
+.custom-cta:hover {
+  background: transparent;
+  color: #111;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+.custom-cta .arrow {
+  transition: transform 0.2s ease;
+  margin-left: 0;
+}
+
+.custom-cta:hover .arrow {
+  transform: translateX(5px);
+}
+
+.custom-price-note {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .custom-inner {
+    flex-direction: column;
+    gap: 40px;
+    padding: 0 24px;
+    text-align: center;
+  }
+
+  .custom-tshirt-wrap {
+    flex: unset;
+    width: 280px;
+  }
+
+  .custom-divider {
+    margin: 0 auto 24px;
+  }
+
+  .custom-price-note {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-section {
+    padding: 60px 0;
+  }
+
+  .custom-tshirt-wrap {
+    width: 240px;
+  }
+
+  .custom-title {
+    font-size: 40px;
+  }
+}

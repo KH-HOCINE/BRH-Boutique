@@ -1,0 +1,322 @@
+/* ============================================================
+   HomePage.css – styles pour la page d'accueil
+   ============================================================ */
+
+/* ----- Hero ----- */
+.hero {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow: hidden;
+  background: var(--gray-100);
+  direction: ltr;
+}
+
+.hero-bg {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  clip-path: polygon(10% 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  padding: 0 60px;
+  max-width: 600px;
+}
+
+.hero-sub {
+  display: inline-block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.hero-title {
+  font-size: clamp(42px, 5vw, 72px);
+  line-height: 1.1;
+  margin-bottom: 20px;
+  color: var(--black);
+}
+
+.hero-desc {
+  font-size: 16px;
+  color: var(--gray-500);
+  margin-bottom: 36px;
+  line-height: 1.7;
+}
+
+/* ----- Bouton principal du hero ----- */
+.btn-primary {
+  display: inline-block;
+  background: var(--black);
+  color: white;
+  text-decoration: none;
+  padding: 14px 36px;
+  border-radius: 40px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid var(--black);
+  font-size: 15px;
+}
+
+.btn-primary:hover {
+  background: transparent;
+  color: var(--black);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ----- Section produits en vedette ----- */
+.section {
+  padding: 80px 0 30px 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: 32px;
+}
+
+.see-all {
+  font-size: 14px;
+  color: var(--gray-500);
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.see-all:hover {
+  color: var(--black);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 28px;
+}
+
+/* ----- Bouton central "Voir tout" ----- */
+.shop-all-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+.shop-all-btn {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 48px;
+  background: var(--black);
+  color: white;
+  text-decoration: none;
+  border-radius: 40px;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  border: 2px solid var(--black);
+}
+
+.shop-all-btn:hover {
+  background: transparent;
+  color: var(--black);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ----- Flèche animée ----- */
+.arrow {
+  display: inline-block;
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+}
+
+.btn-primary:hover .arrow,
+.shop-all-btn:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ----- Images produits dans la grille ----- */
+.products-grid .product-card img {
+  max-height: 280px;
+  object-fit: cover;
+}
+
+/* ============================================================
+   FOOTER – version en colonnes verticales
+   ============================================================ */
+
+.footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+  gap: 40px;
+  padding: 50px 40px 40px;
+  border-top: 1px solid var(--gray-200);
+  color: var(--gray-500);
+  font-size: 13px;
+}
+
+/* Colonne gauche : logo + copyright */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.footer-logo-image {
+  height: 100px;
+  width: auto;
+  display: block;
+}
+
+.footer-copy {
+  margin: 0;
+  font-size: 13px;
+  color: var(--gray-400);
+}
+
+/* Colonne centrale : Liens utiles */
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.footer-links h4 {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--black);
+  margin: 0 0 6px 0;
+}
+
+.footer-links a {
+  color: var(--gray-500);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--black);
+  transform: translateX(4px);
+}
+
+/* Colonne droite : Suivez-nous */
+.footer-social {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.footer-social h4 {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--black);
+  margin: 0 0 6px 0;
+}
+
+.footer-social .social-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-social a {
+  color: var(--gray-500);
+  font-size: 16px;
+  transition: color 0.2s, transform 0.2s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-social a:hover {
+  color: var(--black);
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Hero */
+  .hero-content {
+    padding: 40px 20px;
+  }
+
+  .hero-bg {
+    width: 100%;
+    clip-path: none;
+    opacity: 0.3;
+  }
+
+  /* Grille produits */
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .shop-all-container {
+    margin-top: 20px;
+  }
+
+  .shop-all-btn {
+    padding: 12px 32px;
+    font-size: 14px;
+  }
+
+  /* Footer : passe en colonne unique */
+  .footer {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 30px 20px;
+    text-align: center;
+  }
+
+  .footer-brand {
+    align-items: center;
+  }
+
+  .footer-links {
+    align-items: center;
+  }
+
+  .footer-social {
+    align-items: center;
+  }
+
+  .footer-social .social-icons {
+    flex-direction: row; /* sur mobile, on peut remettre les icônes en ligne pour gagner de la place */
+    gap: 20px;
+  }
+
+  .footer-social a {
+    font-size: 20px;
+  }
+
+  .footer-social a span {
+    display: none; /* on cache le texte des réseaux sur mobile pour ne garder que les icônes */
+  }
+}
