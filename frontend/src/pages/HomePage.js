@@ -4,7 +4,7 @@ import Navbar      from '../components/shop/Navbar';
 import ProductCard from '../components/shop/ProductCard';
 import { useT }    from '../translations';
 import { FaFacebookF, FaInstagram, FaTiktok } from 'react-icons/fa';
-import animeBg from '../images/anime.jpg';
+import animeBg from '../images/anime.png';
 import Logo    from '../images/Logo.png';
 import tshirtImg from '../images/tshirt.jpg';
 import './CustomSection.css';
