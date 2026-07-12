@@ -1,32 +1,132 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import './AdminLayout.css';
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+
+import {
+  FiHome,
+  FiShoppingBag,
+  FiPackage,
+  FiExternalLink,
+  FiLogOut,
+  FiUser,
+  FiMenu,
+  FiX,
+} from "react-icons/fi";
+
+import "./AdminLayout.css";
 
 export default function AdminLayout({ children }) {
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => { logout(); navigate('/admin/login'); };
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/admin/login");
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
 
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div className="sidebar-logo">Admin</div>
+
+      {/* ==========================
+            Bouton Menu Mobile
+      =========================== */}
+
+      <button
+        className="menu-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        {menuOpen ? <FiX /> : <FiMenu />}
+      </button>
+
+      {/* ==========================
+            Overlay Mobile
+      =========================== */}
+
+      {menuOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={closeMenu}
+        ></div>
+      )}
+
+      {/* ==========================
+            Sidebar
+      =========================== */}
+
+      <aside className={`admin-sidebar ${menuOpen ? "open" : ""}`}>
+
+        <div className="sidebar-logo">
+          BHR Boutique
+        </div>
 
         <nav className="sidebar-nav">
-          <NavLink to="/admin"          end>📊 Dashboard</NavLink>
-          <NavLink to="/admin/produits">👕 Produits</NavLink>
-          <NavLink to="/admin/commandes">📦 Commandes</NavLink>
-          <NavLink to="/" target="_blank">🛍️ Voir la boutique</NavLink>
+
+          <NavLink
+            to="/admin"
+            end
+            onClick={closeMenu}
+          >
+            <FiHome />
+            <span>Dashboard</span>
+          </NavLink>
+
+          <NavLink
+            to="/admin/produits"
+            onClick={closeMenu}
+          >
+            <FiShoppingBag />
+            <span>Produits</span>
+          </NavLink>
+
+          <NavLink
+            to="/admin/commandes"
+            onClick={closeMenu}
+          >
+            <FiPackage />
+            <span>Commandes</span>
+          </NavLink>
+
+          <NavLink
+            to="/"
+            target="_blank"
+            onClick={closeMenu}
+          >
+            <FiExternalLink />
+            <span>Voir la boutique</span>
+          </NavLink>
+
         </nav>
 
         <div className="sidebar-user">
-          <span>{admin?.name}</span>
-          <button onClick={handleLogout}>Déconnexion</button>
+
+          <span>
+            <FiUser />
+            {admin?.name || "Administrateur"}
+          </span>
+
+          <button onClick={handleLogout}>
+            <FiLogOut />
+            Déconnexion
+          </button>
+
         </div>
+
       </aside>
 
-      <main className="admin-main">{children}</main>
+      {/* ==========================
+            Contenu
+      =========================== */}
+
+      <main className="admin-main">
+        {children}
+      </main>
+
     </div>
   );
 }
