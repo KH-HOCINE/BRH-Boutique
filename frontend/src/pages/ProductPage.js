@@ -20,9 +20,6 @@ const SIZE_GUIDE_DATA = [
   { size: 'XXL', a: 78, b: 62 },
 ];
 
-// ⛔ Plus besoin de API_URL : les images sont des URLs Cloudinary complètes
-// const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || '';
-
 export default function ProductPage() {
   const { id }       = useParams();
   const navigate     = useNavigate();
@@ -134,7 +131,6 @@ export default function ProductPage() {
   if (loading) return <><Navbar /><div className="spinner" /></>;
   if (!product) return null;
 
-  // Les images sont des URLs Cloudinary complètes — utilisées directement
   const imgSrc = (idx) =>
     product.images?.[idx] || 'https://via.placeholder.com/600x750/f5f5f5/999?text=Photo';
 
@@ -331,7 +327,7 @@ export default function ProductPage() {
               onClick={() => setSizeGuideOpen(false)}
               aria-label={t('image.close')}
             >×</button>
-            <p className="size-guide-ref">{t('size_guide.reference')}</p>
+            {/* SUPPRESSION DE LA LIGNE size-guide-ref */}
             <h2 className="size-guide-title">{t('size_guide.title')}</h2>
             <p className="size-guide-subtitle">{t('size_guide.subtitle')}</p>
 
