@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import AdminLayout from '../components/admin/AdminLayout';
 import api from '../utils/api';
-import tshirtImg from '../images/tshirt.jpg'; // ✅ pour l'aperçu personnalisé
+import tshirtImg from '../images/tshirt.jpg';
 import './AdminOrders.css';
 
 import {
@@ -33,6 +33,7 @@ import {
   FaUser,
   FaSpinner,
   FaExpand,
+  FaCommentDots,
 } from 'react-icons/fa';
 
 const STATUSES = ['Tous', 'En attente', 'Confirmée', 'Expédiée', 'Livrée', 'Annulée'];
@@ -44,11 +45,8 @@ const BADGE = {
   'Livrée':     'badge badge-delivered',
   'Annulée':    'badge badge-cancelled',
 };
-const EMPTY_ITEM = { name: '', price: 0, quantity: 1, size: '', fit: '', color: '', image: '', custom: false, note: '', designImages: [] };
+const EMPTY_ITEM = { name: '', price: 0, quantity: 1, size: '', fit: '', color: '', image: '', custom: false, note: '', designNote: '', designImages: [] };
 
-/* ── Tri "naturel" pour le N° de commande ──────────────
-   Permet de trier correctement même si le N° contient des
-   lettres + chiffres (ex: "CMD-2" doit passer avant "CMD-10") */
 const naturalCompare = (a, b) => {
   const strA = String(a || '');
   const strB = String(b || '');
@@ -58,13 +56,33 @@ const naturalCompare = (a, b) => {
   return strA.localeCompare(strB);
 };
 
+/* ✅ Normalise une entrée de designImages :
+   - ancien format : simple string (URL) → position par défaut
+   - nouveau format : { side, url, x, y, w, h } → utilisé tel quel */
+const normalizeDesignImage = (design, idx) => {
+  if (typeof design === 'string') {
+    return {
+      side: idx === 0 ? 'front' : 'back',
+      url: design,
+      x: 28, y: 20, w: 44, h: 40,
+    };
+  }
+  return {
+    side: design.side || (idx === 0 ? 'front' : 'back'),
+    url: design.url,
+    x: typeof design.x === 'number' ? design.x : 28,
+    y: typeof design.y === 'number' ? design.y : 20,
+    w: typeof design.w === 'number' ? design.w : 44,
+    h: typeof design.h === 'number' ? design.h : 40,
+  };
+};
+
 export default function AdminOrders() {
   const [orders,   setOrders]   = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [filter,   setFilter]   = useState('Tous');
   const [search,   setSearch]   = useState('');
 
-  // ✅ Tri par défaut : par N° de commande
   const [sortKey,  setSortKey]  = useState('orderNumber');
   const [sortDir,  setSortDir]  = useState(1);
 
@@ -77,16 +95,16 @@ export default function AdminOrders() {
   const [saving,   setSaving]   = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // ✅ Aperçu plein écran d'une image d'article
+  // ✅ Aperçu plein écran : image simple (produit standard)
   const [fullscreenImg, setFullscreenImg] = useState(null);
+  // ✅ Aperçu plein écran : mockup fidèle (t-shirt + design positionné exactement)
+  const [fullscreenMockup, setFullscreenMockup] = useState(null);
 
-  /* ── Territoires (Anderson Express) ───────── */
   const [wilayas, setWilayas]                 = useState([]);
   const [communes, setCommunes]               = useState([]);
   const [wilayasLoading, setWilayasLoading]   = useState(false);
   const [communesLoading, setCommunesLoading] = useState(false);
 
-  /* ── Chargement des commandes ───────────────── */
   const fetchOrders = () => {
     setLoading(true);
     api.get('/orders', { params: { limit: 500 } })
@@ -95,7 +113,6 @@ export default function AdminOrders() {
   };
   useEffect(() => { fetchOrders(); }, []);
 
-  /* ── Charger les wilayas ─────── */
   useEffect(() => {
     const fetchWilayas = async () => {
       setWilayasLoading(true);
@@ -112,7 +129,6 @@ export default function AdminOrders() {
     fetchWilayas();
   }, []);
 
-  /* ── Charger les communes (avec info Stop Desk) ── */
   useEffect(() => {
     if (!editMode || !draft?.customer?.wilayaId) {
       setCommunes([]);
@@ -136,12 +152,10 @@ export default function AdminOrders() {
     fetchCommunes();
   }, [editMode, draft?.customer?.wilayaId]);
 
-  /* ── Communes filtrées selon le type de livraison ── */
   const filteredCommunes = draft?.customer?.deliveryType === 'office'
     ? communes.filter(c => c.hasStopDesk)
     : communes;
 
-  /* ── Filtrage + tri ───────── */
   const displayed = useMemo(() => {
     let list = orders.filter(o => {
       const matchFilter = filter === 'Tous' || o.status === filter;
@@ -156,7 +170,6 @@ export default function AdminOrders() {
       return matchFilter && matchSearch;
     });
     list = [...list].sort((a, b) => {
-      // ✅ Tri naturel spécifique pour le N° de commande
       if (sortKey === 'orderNumber') {
         return naturalCompare(a.orderNumber, b.orderNumber) * sortDir;
       }
@@ -176,7 +189,6 @@ export default function AdminOrders() {
   const totalPages = Math.max(1, Math.ceil(displayed.length / PER_PAGE));
   const pageSlice  = displayed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  /* ── Stats ───────────────── */
   const stats = useMemo(() => ({
     total:     orders.length,
     pending:   orders.filter(o => o.status === 'En attente').length,
@@ -184,7 +196,6 @@ export default function AdminOrders() {
     revenue:   orders.filter(o => o.status !== 'Annulée').reduce((s, o) => s + o.totalAmount, 0),
   }), [orders]);
 
-  /* ── Gestion modal ───────── */
   const closeModal = () => {
     setModalOpen(false);
     setEditMode(false);
@@ -223,7 +234,6 @@ export default function AdminOrders() {
     setEditMode(false);
   };
 
-  /* ── Helpers édition ─────── */
   const setCustomer = (field, value) =>
     setDraft(d => {
       if (!d) return d;
@@ -246,7 +256,6 @@ export default function AdminOrders() {
       }
 
       if (field === 'deliveryType') {
-        // Si on passe en Stop Desk et que la commune actuelle n'en a pas, on la réinitialise
         const stillValid = value === 'office'
           ? communes.some(c => c.name === d.customer.commune && c.hasStopDesk)
           : true;
@@ -330,12 +339,10 @@ export default function AdminOrders() {
     return d.toLocaleDateString('fr-DZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  /* ── Rendu ───────────────── */
   return (
     <AdminLayout>
       <h1 className="page-title">Commandes</h1>
 
-      {/* Statistiques */}
       <div className="stats-bar">
         <div className="stat-card">
           <span className="stat-val">{stats.total}</span>
@@ -355,7 +362,6 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      {/* Toolbar */}
       <div className="toolbar">
         <div className="search-box">
           <input
@@ -372,7 +378,6 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      {/* ── TABLEAU ── */}
       <div className="table-section">
         <div className="tbl-wrap">
           {loading ? (
@@ -445,7 +450,6 @@ export default function AdminOrders() {
           )}
         </div>
 
-        {/* Pagination */}
         <div className="pagination">
           <span className="pag-info">
             {displayed.length === 0 ? '0' : `${(page-1)*PER_PAGE+1}–${Math.min(page*PER_PAGE, displayed.length)}`} sur {displayed.length} commandes
@@ -464,7 +468,6 @@ export default function AdminOrders() {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="order-detail">
-              {/* En-tête */}
               <div className="detail-header">
                 <h2>{selected.orderNumber}</h2>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -500,58 +503,78 @@ export default function AdminOrders() {
 
                   <div className="detail-section">
                     <h3><FaBox /> Articles</h3>
-                    {selected.items.map((item, i) => (
-                      <div key={i} className="detail-item">
-                        {/* ── Aperçu du produit ── */}
-                        {item.custom && item.designImages && item.designImages.length > 0 ? (
-                          // ✅ Cas personnalisé : aperçu t-shirt + design
-                          <div className="tshirt-preview-group">
-                            {item.designImages.map((url, idx) => (
-                              <div key={idx} className="tshirt-preview-wrapper">
-                                <div
-                                  className="tshirt-preview"
-                                  style={{ backgroundImage: `url(${tshirtImg})` }}
-                                  onClick={() => setFullscreenImg(url)}
-                                  title="Cliquer pour agrandir"
-                                >
-                                  <img
-                                    src={url}
-                                    alt={`Design ${idx === 0 ? 'devant' : 'dos'}`}
-                                    className="design-on-tshirt"
-                                  />
-                                  <span className="side-label">
-                                    {idx === 0 ? 'Devant' : 'Dos'}
-                                  </span>
-                                  <span className="zoom-hint"><FaExpand /></span>
+                    {selected.items.map((item, i) => {
+                      const normalizedDesigns = (item.designImages || []).map((d, idx) => normalizeDesignImage(d, idx));
+                      return (
+                        <div key={i} className="detail-item">
+                          {item.custom && normalizedDesigns.length > 0 ? (
+                            // ✅ Aperçu FIDÈLE : le design est affiché exactement à la
+                            // position / taille choisies par le client (x, y, w, h en %)
+                            <div className="tshirt-preview-group">
+                              {normalizedDesigns.map((design, idx) => (
+                                <div key={idx} className="tshirt-preview-wrapper">
+                                  <div
+                                    className="tshirt-preview"
+                                    onClick={() => setFullscreenMockup(design)}
+                                    title="Cliquer pour agrandir l'aperçu exact"
+                                  >
+                                    <img
+                                      src={tshirtImg}
+                                      alt="T-shirt"
+                                      className="tshirt-preview-base"
+                                      draggable={false}
+                                    />
+                                    <img
+                                      src={design.url}
+                                      alt={design.side === 'back' ? 'Design dos' : 'Design devant'}
+                                      className="design-on-tshirt-exact"
+                                      style={{
+                                        left: `${design.x}%`,
+                                        top: `${design.y}%`,
+                                        width: `${design.w}%`,
+                                        height: `${design.h}%`,
+                                      }}
+                                      draggable={false}
+                                    />
+                                    <span className="side-label">
+                                      {design.side === 'back' ? 'Dos' : 'Devant'}
+                                    </span>
+                                    <span className="zoom-hint"><FaExpand /></span>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          // ✅ Cas produit standard : image du produit
-                          <img
-                            src={item.image || 'https://via.placeholder.com/50x50/f5f5f5/999?text=?'}
-                            alt={item.name}
-                            className="detail-item-image"
-                            onClick={() => setFullscreenImg(item.image || 'https://via.placeholder.com/600x600/f5f5f5/999?text=Pas+d%27image')}
-                            title="Cliquer pour agrandir"
-                          />
-                        )}
+                              ))}
+                            </div>
+                          ) : (
+                            <img
+                              src={item.image || 'https://via.placeholder.com/50x50/f5f5f5/999?text=?'}
+                              alt={item.name}
+                              className="detail-item-image"
+                              onClick={() => setFullscreenImg(item.image || 'https://via.placeholder.com/600x600/f5f5f5/999?text=Pas+d%27image')}
+                              title="Cliquer pour agrandir"
+                            />
+                          )}
 
-                        <div className="detail-item-info">
-                          <span className="detail-item-name">
-                            {item.name}
-                            {item.size && ` (${item.size})`}
-                            {item.fit && ` - ${item.fit}`}
-                            {item.color && ` - ${item.color}`}
+                          <div className="detail-item-info">
+                            <span className="detail-item-name">
+                              {item.name}
+                              {item.size && ` (${item.size})`}
+                              {item.fit && ` - ${item.fit}`}
+                              {item.color && ` - ${item.color}`}
+                            </span>
+                            <span className="detail-item-qty">x{item.quantity}</span>
+                            {/* ✅ Note du client sur son design */}
+                            {item.custom && item.designNote && (
+                              <span className="detail-item-designnote">
+                                <FaCommentDots /> {item.designNote}
+                              </span>
+                            )}
+                          </div>
+                          <span className="detail-item-price">
+                            {(item.price * item.quantity).toLocaleString('fr-DZ')} DA
                           </span>
-                          <span className="detail-item-qty">x{item.quantity}</span>
                         </div>
-                        <span className="detail-item-price">
-                          {(item.price * item.quantity).toLocaleString('fr-DZ')} DA
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                     <div className="detail-shipping"><span><FaBox /> Sous-total</span><span>{(selected.subtotal ?? 0).toLocaleString('fr-DZ')} DA</span></div>
                     <div className="detail-shipping"><span><FaTruck /> Livraison</span><span>{(selected.deliveryPrice ?? 0).toLocaleString('fr-DZ')} DA</span></div>
                     <div className="detail-total"><span><FaMoneyBillWave /> Total TTC</span><span>{selected.totalAmount.toLocaleString('fr-DZ')} DA</span></div>
@@ -676,6 +699,34 @@ export default function AdminOrders() {
                             <FaTimesCircle /> Supprimer
                           </button>
                         </div>
+
+                        {/* ✅ Aperçu fidèle en mode édition aussi (lecture seule) */}
+                        {item.custom && item.designImages && item.designImages.length > 0 && (
+                          <div className="tshirt-preview-group edit-preview">
+                            {item.designImages.map((d, i2) => {
+                              const design = normalizeDesignImage(d, i2);
+                              return (
+                                <div key={i2} className="tshirt-preview-wrapper small">
+                                  <div className="tshirt-preview" onClick={() => setFullscreenMockup(design)}>
+                                    <img src={tshirtImg} alt="T-shirt" className="tshirt-preview-base" draggable={false} />
+                                    <img
+                                      src={design.url}
+                                      alt="Design"
+                                      className="design-on-tshirt-exact"
+                                      style={{
+                                        left: `${design.x}%`, top: `${design.y}%`,
+                                        width: `${design.w}%`, height: `${design.h}%`,
+                                      }}
+                                      draggable={false}
+                                    />
+                                    <span className="side-label">{design.side === 'back' ? 'Dos' : 'Devant'}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
                         <div className="edit-grid">
                           <label className="full-width">Nom du produit<input value={item.name} onChange={e => setItem(idx, 'name', e.target.value)} /></label>
                           <label>Prix (DA)<input type="number" min="0" value={item.price} onChange={e => setItem(idx, 'price', e.target.value)} /></label>
@@ -685,6 +736,15 @@ export default function AdminOrders() {
                           <label>Couleur<input value={item.color || ''} onChange={e => setItem(idx, 'color', e.target.value)} /></label>
                           <label className="full-width">URL image<input value={item.image || ''} onChange={e => setItem(idx, 'image', e.target.value)} placeholder="https://…" /></label>
                           <label className="full-width">Note custom<input value={item.note || ''} onChange={e => setItem(idx, 'note', e.target.value)} /></label>
+                          {/* ✅ Note design du client, modifiable par l'admin si besoin */}
+                          <label className="full-width">Détails design (client)
+                            <textarea
+                              className="admin-designnote-textarea"
+                              rows={2}
+                              value={item.designNote || ''}
+                              onChange={e => setItem(idx, 'designNote', e.target.value)}
+                            />
+                          </label>
                         </div>
                       </div>
                     ))}
@@ -729,7 +789,7 @@ export default function AdminOrders() {
         </div>
       )}
 
-      {/* ── LIGHTBOX PLEIN ÉCRAN (aperçu image article) ── */}
+      {/* ── LIGHTBOX : image simple (produit standard) ── */}
       {fullscreenImg && (
         <div className="lightbox-overlay" onClick={() => setFullscreenImg(null)}>
           <button className="lightbox-close" onClick={() => setFullscreenImg(null)}>
@@ -741,6 +801,33 @@ export default function AdminOrders() {
             className="lightbox-image"
             onClick={e => e.stopPropagation()}
           />
+        </div>
+      )}
+
+      {/* ── LIGHTBOX : mockup fidèle (t-shirt + design positionné exactement) ── */}
+      {fullscreenMockup && (
+        <div className="lightbox-overlay" onClick={() => setFullscreenMockup(null)}>
+          <button className="lightbox-close" onClick={() => setFullscreenMockup(null)}>
+            <FaTimes />
+          </button>
+          <div className="lightbox-mockup" onClick={e => e.stopPropagation()}>
+            <img src={tshirtImg} alt="T-shirt" className="lightbox-mockup-base" draggable={false} />
+            <img
+              src={fullscreenMockup.url}
+              alt="Design"
+              className="lightbox-mockup-design"
+              style={{
+                left: `${fullscreenMockup.x}%`,
+                top: `${fullscreenMockup.y}%`,
+                width: `${fullscreenMockup.w}%`,
+                height: `${fullscreenMockup.h}%`,
+              }}
+              draggable={false}
+            />
+            <span className="lightbox-mockup-label">
+              {fullscreenMockup.side === 'back' ? 'Dos' : 'Devant'}
+            </span>
+          </div>
         </div>
       )}
     </AdminLayout>

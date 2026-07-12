@@ -1,4 +1,5 @@
 // models/Order.js
+
 const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
@@ -15,8 +16,15 @@ const orderItemSchema = new mongoose.Schema({
   fit:      { type: String, default: '' },
   color:    { type: String, default: '' },
   image:    { type: String, default: '' },
-  // ✅ NOUVEAU : tableau des URLs des designs importés
-  designImages: { type: [String], default: [] },
+
+  // ✅ Tableau des designs importés avec leur position EXACTE
+  // Format : { side: 'front'|'back', url, x, y, w, h } (en %)
+  // Mixed = accepte aussi l'ancien format (simple string) pour compatibilité
+  designImages: { type: [mongoose.Schema.Types.Mixed], default: [] },
+
+  // ✅ NOUVEAU : note libre du client sur les détails de son design
+  designNote: { type: String, default: '' },
+
   custom:   { type: Boolean, default: false },
   note:     { type: String, default: '' },
 });
@@ -32,7 +40,6 @@ const orderSchema = new mongoose.Schema({
     phone2:    { type: String, default: '' },
     email:     { type: String, default: '' },
     wilaya:    { type: String, required: true },
-    // ✅ NOUVEAU : Code numérique de la wilaya (1 à 58) pour l'API Anderson
     wilayaCode: { type: Number, required: false },
     commune:   { type: String, required: true },
     address:   { type: String, default: '' },
@@ -69,7 +76,6 @@ const orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  // ✅ NOUVEAU : Champs de synchronisation Anderson
   andersonOrderId: {
     type: String,
     default: null,

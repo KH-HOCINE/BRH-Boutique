@@ -16,17 +16,13 @@ const CHILD_SIZES = ['6ans','8ans','10ans','12ans','14ans/Xs'];
 const ADULT_SIZES = ['S','M','L','XL','XXL'];
 const FITS        = ['Regular', 'Oversize'];
 
-// Tailles à ne PAS afficher dans le tableau du guide des tailles
-// (elles restent sélectionnables normalement dans les boutons de taille)
 const SIZE_GUIDE_EXCLUDED = ['6ans', '8ans', '10ans', '12ans', '14ans/Xs'];
 
-// Nouveaux prix : simple / double face
 const PRICE_CHILD_SINGLE = 2500;
 const PRICE_CHILD_DOUBLE = 2700;
 const PRICE_ADULT_SINGLE = 2900;
 const PRICE_ADULT_DOUBLE = 3200;
 
-// Données du guide des tailles (mesures en cm)
 const SIZE_GUIDE_DATA = [
   { size: '6ans',   a: 50, b: 38 },
   { size: '8ans',   a: 54, b: 40 },
@@ -42,6 +38,9 @@ const SIZE_GUIDE_DATA = [
 
 const INITIAL_DESIGN = { file: null, url: null, x: 30, y: 22, w: 40, h: 38 };
 
+// Longueur max autorisée pour le champ de détails du design
+const DESIGN_NOTE_MAX = 500;
+
 export default function CustomizerPage() {
   const navigate = useNavigate();
   const { dispatch } = useCart();
@@ -54,8 +53,11 @@ export default function CustomizerPage() {
   const [fit, setFit]               = useState('');
   const [qty, setQty]               = useState(1);
   const [uploading, setUploading]   = useState(false);
-  const [color, setColor]           = useState('');           // Nouveau : couleur choisie
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(false); // Nouveau : ouverture du guide
+  const [color, setColor]           = useState('');
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+
+  // ✅ NOUVEAU : note libre du client sur les détails de son design
+  const [designNote, setDesignNote] = useState('');
 
   const canvasRef   = useRef(null);
   const fileInputRef = useRef(null);
@@ -64,7 +66,6 @@ export default function CustomizerPage() {
   const isChild   = CHILD_SIZES.includes(size);
   const hasBothSides = !!(designs.front.url && designs.back.url);
 
-  // Calcul du prix selon la taille et le nombre de faces
   let price = 0;
   if (size) {
     if (isChild) {
@@ -73,20 +74,17 @@ export default function CustomizerPage() {
       price = hasBothSides ? PRICE_ADULT_DOUBLE : PRICE_ADULT_SINGLE;
     }
   } else {
-    // Par défaut (aucune taille sélectionnée) on affiche le prix adulte simple
     price = PRICE_ADULT_SINGLE;
   }
 
   const hasDesign = designs.front.url || designs.back.url;
 
-  // Reset fit if child size selected
   useEffect(() => { if (isChild) setFit(''); }, [isChild]);
 
   const setDesign = useCallback((updates) => {
     setDesigns(prev => ({ ...prev, [activeSide]: { ...prev[activeSide], ...updates } }));
   }, [activeSide]);
 
-  // Fonction d'upload vers Cloudinary
   const uploadDesign = async (file) => {
     setUploading(true);
     const formData = new FormData();
@@ -180,7 +178,6 @@ export default function CustomizerPage() {
     };
   }, [dragging, setDesign]);
 
-  // Gestion du clavier pour fermer le guide
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && sizeGuideOpen) setSizeGuideOpen(false);
@@ -189,7 +186,6 @@ export default function CustomizerPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [sizeGuideOpen]);
 
-  // Bloquer le scroll quand le guide est ouvert
   useEffect(() => {
     if (sizeGuideOpen) {
       document.body.style.overflow = 'hidden';
@@ -206,9 +202,32 @@ export default function CustomizerPage() {
     if (!color)     { toast.warning('Veuillez choisir une couleur (Noir ou Blanc)'); return; }
 
     const placements = [];
-    const designUrls = [];
-    if (designs.front.url) { placements.push('devant'); designUrls.push(designs.front.url); }
-    if (designs.back.url)  { placements.push('derrière'); designUrls.push(designs.back.url); }
+    // ✅ On garde désormais la position EXACTE (x, y, w, h) de chaque design,
+    // ainsi que le côté (front/back), pour un affichage fidèle côté admin.
+    const designPlacements = [];
+
+    if (designs.front.url) {
+      placements.push('devant');
+      designPlacements.push({
+        side: 'front',
+        url: designs.front.url,
+        x: designs.front.x,
+        y: designs.front.y,
+        w: designs.front.w,
+        h: designs.front.h,
+      });
+    }
+    if (designs.back.url) {
+      placements.push('derrière');
+      designPlacements.push({
+        side: 'back',
+        url: designs.back.url,
+        x: designs.back.x,
+        y: designs.back.y,
+        w: designs.back.w,
+        h: designs.back.h,
+      });
+    }
     const placementLabel = placements.join(' + ');
 
     dispatch({
@@ -218,13 +237,15 @@ export default function CustomizerPage() {
         name:    `T-shirt personnalisé (${placementLabel})`,
         price,
         image:   tshirtImg,
-        designImages: designUrls,
+        designImages: designPlacements,
         size,
         fit:     isChild ? '' : fit,
         color,
         quantity: qty,
         custom:  true,
         note:    `Design ${placementLabel} — contactez-nous pour envoyer votre fichier.`,
+        // ✅ NOUVEAU : détails saisis par le client sur son design
+        designNote: designNote.trim(),
       },
     });
 
@@ -232,8 +253,6 @@ export default function CustomizerPage() {
     navigate('/panier');
   };
 
-  // Données pour le guide des tailles (filtrées selon les tailles disponibles
-  // ET on retire les tailles qu'on ne veut pas afficher dans le tableau du guide)
   const sizeGuideRows = SIZE_GUIDE_DATA.filter(
     row => SIZE_ORDER.includes(row.size) && !SIZE_GUIDE_EXCLUDED.includes(row.size)
   );
@@ -411,7 +430,6 @@ export default function CustomizerPage() {
                 </div>
               )}
 
-              {/* Nouveau : choix de la couleur */}
               <div className="option-group">
                 <label>Couleur du t-shirt</label>
                 <div className="color-options">
@@ -430,6 +448,23 @@ export default function CustomizerPage() {
                 </div>
               </div>
 
+              {/* ✅ NOUVEAU : champ libre pour les détails du design */}
+              <div className="option-group">
+                <label htmlFor="design-note">Détails sur votre design (optionnel)</label>
+                <textarea
+                  id="design-note"
+                  className="design-note-textarea"
+                  placeholder="Ex : le logo doit être centré, le texte en blanc, ne pas recadrer l'image, taille légèrement plus petite que l'aperçu..."
+                  value={designNote}
+                  onChange={e => setDesignNote(e.target.value.slice(0, DESIGN_NOTE_MAX))}
+                  rows={3}
+                  maxLength={DESIGN_NOTE_MAX}
+                />
+                <p className="option-hint note-char-count">
+                  {designNote.length}/{DESIGN_NOTE_MAX} caractères
+                </p>
+              </div>
+
               <div className="option-group">
                 <label>{t('customizer.quantity.label')}</label>
                 <div className="qty-row">
@@ -444,7 +479,6 @@ export default function CustomizerPage() {
                 </div>
               </div>
 
-              {/* Note de paiement */}
               <div className="payment-note">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10"/>
@@ -454,9 +488,9 @@ export default function CustomizerPage() {
                 <div>
                   <strong>⚠️ Paiement à l'avance obligatoire</strong>
                   <p>
-                    Les commandes personnalisées ne sont pas éligibles au paiement à la livraison (cash). 
+                    Les commandes personnalisées ne sont pas éligibles au paiement à la livraison (cash).
                     Un paiement anticipé par <strong>BaridiMob</strong> est requis avant le début de la production.
-                    Vous pouvez régler une partie ou la totalité du montant. 
+                    Vous pouvez régler une partie ou la totalité du montant.
                     Dès réception du virement, nous lancerons la fabrication de votre design.
                   </p>
                 </div>
@@ -515,7 +549,6 @@ export default function CustomizerPage() {
                   alt="Schéma des mesures du t-shirt"
                   style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
                 />
-                {/* Flèche verticale (longueur A) */}
                 <div className="measure-arrow measure-arrow-vertical" style={{
                   position: 'absolute', left: '15%', top: '10%', bottom: '10%',
                   width: '2px', background: '#c0392b', transform: 'translateX(-50%)',
@@ -540,7 +573,6 @@ export default function CustomizerPage() {
                     color: '#c0392b', fontWeight: 'bold', fontSize: '18px', fontFamily: 'Georgia, serif',
                   }}>A</span>
                 </div>
-                {/* Flèche horizontale (largeur B) */}
                 <div className="measure-arrow measure-arrow-horizontal" style={{
                   position: 'absolute', top: '55%', left: '25%', right: '25%',
                   height: '2px', background: 'white', transform: 'translateY(-50%)',

@@ -60,6 +60,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  /* Sur desktop, le canvas suit le scroll normalement */
 }
 
 /* ── Onglets côté ──────────────────────────────────── */
@@ -432,6 +433,31 @@
   color: white;
 }
 
+/* ── Champ "détails du design" (NOUVEAU) ───────────── */
+.design-note-textarea {
+  width: 100%;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #333;
+  resize: vertical;
+  min-height: 70px;
+  box-sizing: border-box;
+  transition: border-color .2s;
+}
+.design-note-textarea:focus {
+  outline: none;
+  border-color: #1a1a2e;
+}
+.design-note-textarea::placeholder {
+  color: #bbb;
+}
+.note-char-count {
+  text-align: right;
+}
+
 /* ── Quantité ───────────────────────────────────────── */
 .qty-row {
   display: flex;
@@ -574,6 +600,10 @@
   .customizer-header-text h1 {
     font-size: 20px;
   }
+  .customizer-header {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
   .options-card {
     padding: 16px;
   }
@@ -584,12 +614,78 @@
     font-size: 12px;
     padding: 12px;
   }
-  .btn-order {
-    font-size: 14px;
-    padding: 12px;
-  }
   .tshirt-canvas {
     max-width: 100%;
+  }
+
+  /* ✅ Sur mobile, les contrôles ne se dévoilent plus au survol
+     (le survol n'existe pas au doigt) : on les affiche en permanence
+     dès qu'un design est présent, avec des cibles plus grandes. */
+  .resize-handle {
+    opacity: 1;
+    width: 28px;
+    height: 28px;
+    bottom: -10px;
+    right: -10px;
+  }
+  .design-remove {
+    opacity: 1;
+    width: 30px;
+    height: 30px;
+    top: -12px;
+    right: -12px;
+    font-size: 18px;
+  }
+
+  /* ✅ Barre de commande "sticky" en bas d'écran sur mobile :
+     le client garde toujours le prix + le bouton sous les yeux
+     pendant qu'il ajuste son design. */
+  .options-card .btn-order {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 500;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+  }
+  .options-card .price-note {
+    display: none; /* redondant avec le prix affiché dans le bouton sticky */
+  }
+  /* on laisse de la place en bas de page pour ne pas masquer le contenu */
+  .customizer-page {
+    padding-bottom: 110px;
+  }
+
+  .canvas-actions {
+    gap: 8px;
+  }
+  .btn-upload {
+    padding: 8px 14px;
+    font-size: 13px;
+    flex: 1;
+    justify-content: center;
+  }
+  .scale-controls {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 400px) {
+  .side-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .size-grid {
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+    gap: 5px;
+  }
+  .color-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+  .options-card h2 {
+    font-size: 16px;
   }
 }
 
@@ -597,7 +693,6 @@
    AJOUTS : Guide des tailles, choix de la couleur
    ============================================================ */
 
-/* ── Guide des tailles — lien ─────────────────────────── */
 .size-guide-link {
   font-size: 12px;
   font-weight: 600;
@@ -615,7 +710,6 @@
 }
 .size-guide-link:hover { color: #1a1a2e; }
 
-/* ── Guide des tailles — overlay & modal ──────────────── */
 .size-guide-overlay {
   position: fixed;
   inset: 0;
@@ -681,7 +775,6 @@
   line-height: 1.5;
 }
 
-/* ── Schéma illustré ───────────────────────────────────── */
 .size-guide-diagram {
   background: #f5f0e8;
   border-radius: 10px;
@@ -723,7 +816,6 @@
   margin: 0;
 }
 
-/* ── Tableau des mesures ───────────────────────────────── */
 .size-guide-table {
   width: 100%;
   border-collapse: collapse;
@@ -756,7 +848,6 @@
   color: #0abde3;
 }
 
-/* ── Conseil fin de modal ──────────────────────────────── */
 .size-guide-tip {
   font-size: 11px;
   font-weight: 600;
@@ -767,7 +858,6 @@
   line-height: 1.6;
 }
 
-/* ── Responsive mobile (guide des tailles) ─────────────── */
 @media (max-width: 480px) {
   .size-guide-modal {
     padding: 32px 20px 24px;
@@ -807,6 +897,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 .selector-label-row label {
   margin-bottom: 0;

@@ -3,7 +3,6 @@ const express = require('express');
 const Order   = require('../models/Order');
 const { protect } = require('../middleware/auth');
 const { sendOrderNotificationToAdmin, sendOrderConfirmationToClient } = require('../config/email');
-// ✅ Import de la nouvelle fonction de synchronisation
 const { createAndersonOrder } = require('../config/anderson');
 const router  = express.Router();
 
@@ -25,7 +24,6 @@ router.post('/', async (req, res) => {
     const delivery    = deliveryPrice || 0;
     const totalAmount = subtotal + delivery;
 
-    // Création de la commande
     const order = await Order.create({
       customer, items: cleanedItems, subtotal,
       deliveryPrice: delivery, totalAmount, notes,
@@ -35,7 +33,6 @@ router.post('/', async (req, res) => {
     let syncError = null;
     try {
       const andersonResponse = await createAndersonOrder(order);
-      // Anderson peut renvoyer un identifiant (ex: "id" ou "orderId"). On stocke.
       order.andersonOrderId = andersonResponse.id || andersonResponse.orderId || 'synced_ok';
       order.andersonSyncStatus = 'synced';
       console.log(`[Sync] ✅ Commande ${order.orderNumber} synchronisée sur Anderson.`);
@@ -89,6 +86,7 @@ router.get('/track/:orderNumber', async (req, res) => {
         name: item.name, price: item.price, quantity: item.quantity,
         size: item.size, fit: item.fit, color: item.color,
         image: item.image, custom: item.custom, note: item.note,
+        designImages: item.designImages, designNote: item.designNote,
       })),
       customer: {
         wilaya: order.customer.wilaya,
@@ -185,6 +183,9 @@ router.put('/:id', protect, async (req, res) => {
           fit:      item.fit   || '',
           color:    item.color || '',
           image:    item.image || '',
+          // ✅ On préserve les designs (position exacte) et la note client
+          designImages: item.designImages || [],
+          designNote:   item.designNote   || '',
           custom:   item.custom || false,
           note:     item.note  || '',
         };
