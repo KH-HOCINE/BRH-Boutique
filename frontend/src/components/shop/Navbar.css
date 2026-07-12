@@ -51,11 +51,11 @@
 
 .navbar-links a:hover,
 .navbar-links a.active {
-  color: #D4AF37;
+  color: #C79659;
 }
 
 .navbar-links a:active {
-  color: #F5D061;
+  color: #C79659;
 }
 
 /* ── Recherche desktop ── */
@@ -80,7 +80,7 @@
 }
 
 .navbar-search input:focus {
-  border-color: #D4AF37;
+  border-color: #C79659;
 }
 
 .search-icon {
@@ -100,11 +100,11 @@
 }
 
 .search-icon:hover {
-  color: #D4AF37;
+  color: #C79659;
 }
 
 .search-icon:active {
-  color: #F5D061;
+  color: #C79659;
   transform: translateY(-50%) scale(0.9);
 }
 
@@ -135,7 +135,7 @@
 }
 
 .lang-btn:hover {
-  color: #D4AF37;
+  color: #C79659;
 }
 
 .lang-btn:active {
@@ -143,7 +143,7 @@
 }
 
 .lang-btn--active {
-  background: #D4AF37;
+  background: #C79659;
   color: #0a0a0a;
 }
 
@@ -156,7 +156,7 @@
 }
 
 .navbar-cart:hover {
-  color: #D4AF37;
+  color: #C79659;
   opacity: 0.9;
 }
 
@@ -168,7 +168,7 @@
   position: absolute;
   top: -8px;
   right: -8px;
-  background: #D4AF37;
+  background: #C79659;
   color: #0a0a0a;
   font-size: 10px;
   font-weight: 600;
@@ -205,7 +205,7 @@
 }
 
 .hamburger-btn:active span {
-  background: #D4AF37;
+  background: #C79659;
 }
 
 /* Animation croix quand ouvert */
@@ -249,11 +249,11 @@
 
 .mobile-menu a:hover,
 .mobile-menu a.active {
-  color: #D4AF37;
+  color: #C79659;
 }
 
 .mobile-menu a:active {
-  color: #F5D061;
+  color: #C79659;
 }
 
 /* Recherche dans le menu mobile */
@@ -276,7 +276,7 @@
 }
 
 .mobile-search input:focus {
-  border-color: #D4AF37;
+  border-color: #C79659;
 }
 
 .mobile-search button {
@@ -295,7 +295,7 @@
 }
 
 .mobile-search button:active {
-  color: #D4AF37;
+  color: #C79659;
 }
 
 /* Langue dans le menu mobile */
