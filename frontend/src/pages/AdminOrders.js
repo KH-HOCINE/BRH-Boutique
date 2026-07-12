@@ -1,4 +1,5 @@
 // AdminOrders.js
+
 import { useEffect, useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import AdminLayout from '../components/admin/AdminLayout';
@@ -7,7 +8,6 @@ import tshirtImg from '../images/tshirt.jpg'; // ✅ pour l'aperçu personnalis�
 import './AdminOrders.css';
 
 import {
-  FaSearch,
   FaEdit,
   FaTrash,
   FaTimes,
@@ -32,6 +32,7 @@ import {
   FaTimesCircle,
   FaUser,
   FaSpinner,
+  FaExpand,
 } from 'react-icons/fa';
 
 const STATUSES = ['Tous', 'En attente', 'Confirmée', 'Expédiée', 'Livrée', 'Annulée'];
@@ -45,13 +46,28 @@ const BADGE = {
 };
 const EMPTY_ITEM = { name: '', price: 0, quantity: 1, size: '', fit: '', color: '', image: '', custom: false, note: '', designImages: [] };
 
+/* ── Tri "naturel" pour le N° de commande ──────────────
+   Permet de trier correctement même si le N° contient des
+   lettres + chiffres (ex: "CMD-2" doit passer avant "CMD-10") */
+const naturalCompare = (a, b) => {
+  const strA = String(a || '');
+  const strB = String(b || '');
+  const numA = parseInt(strA.replace(/\D/g, ''), 10);
+  const numB = parseInt(strB.replace(/\D/g, ''), 10);
+  if (!isNaN(numA) && !isNaN(numB) && numA !== numB) return numA - numB;
+  return strA.localeCompare(strB);
+};
+
 export default function AdminOrders() {
   const [orders,   setOrders]   = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [filter,   setFilter]   = useState('Tous');
   const [search,   setSearch]   = useState('');
-  const [sortKey,  setSortKey]  = useState('createdAt');
-  const [sortDir,  setSortDir]  = useState(-1);
+
+  // ✅ Tri par défaut : par N° de commande
+  const [sortKey,  setSortKey]  = useState('orderNumber');
+  const [sortDir,  setSortDir]  = useState(1);
+
   const [page,     setPage]     = useState(1);
   const PER_PAGE = 20;
 
@@ -60,6 +76,9 @@ export default function AdminOrders() {
   const [draft,    setDraft]    = useState(null);
   const [saving,   setSaving]   = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // ✅ Aperçu plein écran d'une image d'article
+  const [fullscreenImg, setFullscreenImg] = useState(null);
 
   /* ── Territoires (Anderson Express) ───────── */
   const [wilayas, setWilayas]                 = useState([]);
@@ -137,6 +156,13 @@ export default function AdminOrders() {
       return matchFilter && matchSearch;
     });
     list = [...list].sort((a, b) => {
+      // ✅ Tri naturel spécifique pour le N° de commande
+      if (sortKey === 'orderNumber') {
+        return naturalCompare(a.orderNumber, b.orderNumber) * sortDir;
+      }
+      if (sortKey === 'createdAt') {
+        return (new Date(a.createdAt) - new Date(b.createdAt)) * sortDir;
+      }
       let av, bv;
       if (sortKey === 'name')        { av = a.customer.fullName; bv = b.customer.fullName; }
       else if (sortKey === 'wilaya') { av = a.customer.wilaya;   bv = b.customer.wilaya; }
@@ -149,12 +175,6 @@ export default function AdminOrders() {
 
   const totalPages = Math.max(1, Math.ceil(displayed.length / PER_PAGE));
   const pageSlice  = displayed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-
-  const handleSort = (key) => {
-    if (sortKey === key) setSortDir(d => d * -1); else { setSortKey(key); setSortDir(1); }
-    setPage(1);
-  };
-  const si = (k) => sortKey === k ? (sortDir === 1 ? ' ↑' : ' ↓') : ' ↕';
 
   /* ── Stats ───────────────── */
   const stats = useMemo(() => ({
@@ -305,6 +325,11 @@ export default function AdminOrders() {
     } catch { toast.error('Erreur'); }
   };
 
+  const formatDate = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-DZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
   /* ── Rendu ───────────────── */
   return (
     <AdminLayout>
@@ -333,7 +358,6 @@ export default function AdminOrders() {
       {/* Toolbar */}
       <div className="toolbar">
         <div className="search-box">
-          <FaSearch className="search-icon" />
           <input
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
@@ -357,34 +381,35 @@ export default function AdminOrders() {
             <table className="orders-table">
               <thead>
                 <tr>
-                  <th onClick={() => handleSort('orderNumber')}>N° commande{si('orderNumber')}</th>
-                  <th onClick={() => handleSort('name')}>Nom et prénom{si('name')}</th>
+                  <th>N° commande</th>
+                  <th>Nom et prénom</th>
                   <th>Tél 1</th>
                   <th>Tél 2</th>
-                  <th onClick={() => handleSort('wilaya')}>Wilaya / Commune{si('wilaya')}</th>
+                  <th>Wilaya / Commune</th>
                   <th>Livraison</th>
-                  <th className="text-right" onClick={() => handleSort('totalAmount')}>Prix{si('totalAmount')}</th>
-                  <th onClick={() => handleSort('status')}>Statut{si('status')}</th>
-                  <th></th>
+                  <th>Date</th>
+                  <th className="text-right">Prix</th>
+                  <th>Statut</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {pageSlice.length === 0 ? (
-                  <tr><td colSpan={9} className="empty-cell">Aucune commande trouvée</td></tr>
+                  <tr><td colSpan={10} className="empty-cell">Aucune commande trouvée</td></tr>
                 ) : pageSlice.map(o => (
                   <tr key={o._id}
                     className={`tbl-row ${selected?._id === o._id ? 'tbl-active' : ''} ${o.status === 'Annulée' ? 'tbl-cancelled' : ''}`}
                     onClick={() => selectOrder(o)}
                   >
-                    <td><span className="order-num">{o.orderNumber}</span></td>
-                    <td><span className="client-name">{o.customer.fullName}</span></td>
-                    <td>{o.customer.phone}</td>
-                    <td className={o.customer.phone2 ? '' : 'muted-cell'}>{o.customer.phone2 || '—'}</td>
-                    <td>
+                    <td data-label="N° commande"><span className="order-num">{o.orderNumber}</span></td>
+                    <td data-label="Nom et prénom"><span className="client-name">{o.customer.fullName}</span></td>
+                    <td data-label="Tél 1">{o.customer.phone}</td>
+                    <td data-label="Tél 2" className={o.customer.phone2 ? '' : 'muted-cell'}>{o.customer.phone2 || '—'}</td>
+                    <td data-label="Wilaya / Commune">
                       <span className="city-main">{o.customer.wilaya}</span>
                       <span className="city-sub">{o.customer.commune}</span>
                     </td>
-                    <td>
+                    <td data-label="Livraison">
                       <span className="delivery-type">
                         {o.customer.deliveryType === 'home' ? (
                           <><FaHome /> Domicile</>
@@ -393,13 +418,16 @@ export default function AdminOrders() {
                         )}
                       </span>
                     </td>
-                    <td className="text-right">
+                    <td data-label="Date">
+                      <span className="order-date"><FaCalendarAlt /> {formatDate(o.createdAt)}</span>
+                    </td>
+                    <td data-label="Prix" className="text-right">
                       <span className="price-total">{o.totalAmount.toLocaleString('fr-DZ')} DA</span>
                       <span className="price-detail">
                         {(o.subtotal ?? 0).toLocaleString('fr-DZ')} + {(o.deliveryPrice ?? 0).toLocaleString('fr-DZ')} livr.
                       </span>
                     </td>
-                    <td><span className={BADGE[o.status] || 'badge'}>{o.status}</span></td>
+                    <td data-label="Statut"><span className={BADGE[o.status] || 'badge'}>{o.status}</span></td>
                     <td onClick={e => e.stopPropagation()}>
                       <div className="row-actions">
                         <button className="icon-btn" title="Modifier" onClick={() => openEdit(o)}>
@@ -483,6 +511,8 @@ export default function AdminOrders() {
                                 <div
                                   className="tshirt-preview"
                                   style={{ backgroundImage: `url(${tshirtImg})` }}
+                                  onClick={() => setFullscreenImg(url)}
+                                  title="Cliquer pour agrandir"
                                 >
                                   <img
                                     src={url}
@@ -492,6 +522,7 @@ export default function AdminOrders() {
                                   <span className="side-label">
                                     {idx === 0 ? 'Devant' : 'Dos'}
                                   </span>
+                                  <span className="zoom-hint"><FaExpand /></span>
                                 </div>
                               </div>
                             ))}
@@ -502,6 +533,8 @@ export default function AdminOrders() {
                             src={item.image || 'https://via.placeholder.com/50x50/f5f5f5/999?text=?'}
                             alt={item.name}
                             className="detail-item-image"
+                            onClick={() => setFullscreenImg(item.image || 'https://via.placeholder.com/600x600/f5f5f5/999?text=Pas+d%27image')}
+                            title="Cliquer pour agrandir"
                           />
                         )}
 
@@ -693,6 +726,21 @@ export default function AdminOrders() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── LIGHTBOX PLEIN ÉCRAN (aperçu image article) ── */}
+      {fullscreenImg && (
+        <div className="lightbox-overlay" onClick={() => setFullscreenImg(null)}>
+          <button className="lightbox-close" onClick={() => setFullscreenImg(null)}>
+            <FaTimes />
+          </button>
+          <img
+            src={fullscreenImg}
+            alt="Aperçu plein écran"
+            className="lightbox-image"
+            onClick={e => e.stopPropagation()}
+          />
         </div>
       )}
     </AdminLayout>
