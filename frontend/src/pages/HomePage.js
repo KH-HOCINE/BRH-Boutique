@@ -6,7 +6,7 @@ import { useT }    from '../translations';
 import { FaFacebookF, FaInstagram, FaTiktok } from 'react-icons/fa';
 import animeBg from '../images/anime.png';
 import Logo    from '../images/Logo.png';
-import tshirtImg from '../images/tshirt.jpg';
+import tshirtImg from '../images/Tshirt noir avant.png';
 import './CustomSection.css';
 import api     from '../utils/api';
 import './HomePage.css';

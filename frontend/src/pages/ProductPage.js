@@ -7,10 +7,19 @@ import { trackViewContent, trackAddToCart } from '../utils/metaPixel';
 import api from '../utils/api';
 import { useT } from '../translations';
 import './ProductPage.css';
-import tshirtImg from '../images/tshirt.jpg';
+import tshirtNoirAvant from '../images/Tshirt noir avant.png';
+import tshirtNoirArriere from '../images/Tshirt noir arriere.png';
+import tshirtBlancAvant from '../images/Tshirt blanc avant.png';
+import tshirtBlancArriere from '../images/Tshirt blanc arriere.png';
 
 const SIZE_ORDER   = ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL'];
 const CHILD_SIZES  = ['6ans','8ans','10ans','12ans','14ans/Xs'];
+
+// ✅ NOUVEAU : map couleur -> côté -> image du t-shirt (mêmes 4 visuels que le configurateur)
+const TSHIRT_IMAGES = {
+  Noir:  { front: tshirtNoirAvant,  back: tshirtNoirArriere },
+  Blanc: { front: tshirtBlancAvant, back: tshirtBlancArriere },
+};
 
 const SIZE_GUIDE_DATA = [
   { size: 'S',   a: 70, b: 52 },
@@ -44,6 +53,11 @@ export default function ProductPage() {
   };
 
   const currentPrice = getCurrentPrice();
+
+  // ✅ NOUVEAU : image du guide des tailles selon la couleur choisie par le client.
+  // Le guide n'a pas de notion "avant/dos" séparée : on utilise la vue "avant" de la
+  // couleur sélectionnée (Noir par défaut si aucune couleur n'est encore choisie).
+  const sizeGuideImg = (TSHIRT_IMAGES[color] || TSHIRT_IMAGES.Noir).front;
 
   useEffect(() => {
     if (size && CHILD_SIZES.includes(size)) {
@@ -334,7 +348,7 @@ export default function ProductPage() {
             <div className="size-guide-diagram">
               <div className="size-guide-diagram-img" style={{ position: 'relative', display: 'inline-block' }}>
                 <img
-                  src={tshirtImg}
+                  src={sizeGuideImg}
                   alt="Schéma des mesures du t-shirt"
                   style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
                 />

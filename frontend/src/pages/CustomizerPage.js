@@ -6,7 +6,10 @@ import Navbar from '../components/shop/Navbar';
 import { useCart } from '../context/CartContext';
 import { useT } from '../translations';
 import api from '../utils/api';
-import tshirtImg from '../images/tshirt.jpg';
+import tshirtNoirAvant from '../images/Tshirt noir avant.png';
+import tshirtNoirArriere from '../images/Tshirt noir arriere.png';
+import tshirtBlancAvant from '../images/Tshirt blanc avant.png';
+import tshirtBlancArriere from '../images/Tshirt blanc arriere.png';
 import './CustomizerPage.css';
 
 const SIDES = ['front', 'back'];
@@ -22,6 +25,12 @@ const PRICE_CHILD_SINGLE = 2500;
 const PRICE_CHILD_DOUBLE = 2700;
 const PRICE_ADULT_SINGLE = 2900;
 const PRICE_ADULT_DOUBLE = 3200;
+
+// ✅ NOUVEAU : map couleur -> côté -> image du t-shirt
+const TSHIRT_IMAGES = {
+  Noir:  { front: tshirtNoirAvant,  back: tshirtNoirArriere },
+  Blanc: { front: tshirtBlancAvant, back: tshirtBlancArriere },
+};
 
 const SIZE_GUIDE_DATA = [
   { size: '6ans',   a: 50, b: 38 },
@@ -65,6 +74,10 @@ export default function CustomizerPage() {
   const design    = designs[activeSide];
   const isChild   = CHILD_SIZES.includes(size);
   const hasBothSides = !!(designs.front.url && designs.back.url);
+
+  // ✅ NOUVEAU : image du t-shirt affichée selon la couleur choisie et le côté actif.
+  // Tant qu'aucune couleur n'est choisie, on affiche le noir par défaut.
+  const currentTshirtImg = TSHIRT_IMAGES[color || 'Noir'][activeSide];
 
   let price = 0;
   if (size) {
@@ -236,7 +249,8 @@ export default function CustomizerPage() {
         product: `custom-tshirt-${Date.now()}`,
         name:    `T-shirt personnalisé (${placementLabel})`,
         price,
-        image:   tshirtImg,
+        // ✅ Image du produit envoyée au panier : le visuel "avant" de la couleur choisie
+        image: TSHIRT_IMAGES[color]?.front || tshirtNoirAvant,
         designImages: designPlacements,
         size,
         fit:     isChild ? '' : fit,
@@ -294,7 +308,7 @@ export default function CustomizerPage() {
               onDrop={handleDrop}
               onDragOver={e => e.preventDefault()}
             >
-              <img src={tshirtImg} alt="T-shirt vierge" className="tshirt-base" draggable={false} />
+              <img src={currentTshirtImg} alt="T-shirt vierge" className="tshirt-base" draggable={false} />
 
               {!design.url && (
                 <div className="tshirt-dropzone" onClick={() => fileInputRef.current?.click()}>
@@ -545,7 +559,7 @@ export default function CustomizerPage() {
             <div className="size-guide-diagram">
               <div className="size-guide-diagram-img" style={{ position: 'relative', display: 'inline-block' }}>
                 <img
-                  src={tshirtImg}
+                  src={currentTshirtImg}
                   alt="Schéma des mesures du t-shirt"
                   style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
                 />

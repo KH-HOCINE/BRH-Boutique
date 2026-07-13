@@ -4,7 +4,10 @@ import { useEffect, useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import AdminLayout from '../components/admin/AdminLayout';
 import api from '../utils/api';
-import tshirtImg from '../images/tshirt.jpg';
+import tshirtNoirAvant from '../images/Tshirt noir avant.png';
+import tshirtNoirArriere from '../images/Tshirt noir arriere.png';
+import tshirtBlancAvant from '../images/Tshirt blanc avant.png';
+import tshirtBlancArriere from '../images/Tshirt blanc arriere.png';
 import './AdminOrders.css';
 
 import {
@@ -46,6 +49,19 @@ const BADGE = {
   'Annulée':    'badge badge-cancelled',
 };
 const EMPTY_ITEM = { name: '', price: 0, quantity: 1, size: '', fit: '', color: '', image: '', custom: false, note: '', designNote: '', designImages: [] };
+
+// ✅ NOUVEAU : map couleur -> côté -> image du t-shirt (mêmes 4 visuels que le configurateur)
+const TSHIRT_IMAGES = {
+  Noir:  { front: tshirtNoirAvant,  back: tshirtNoirArriere },
+  Blanc: { front: tshirtBlancAvant, back: tshirtBlancArriere },
+};
+
+// ✅ Renvoie la bonne image de t-shirt selon la couleur de l'article et le côté du design.
+// Si la couleur enregistrée ne correspond à rien de connu, on retombe sur le Noir par défaut.
+const getTshirtImage = (color, side) => {
+  const palette = TSHIRT_IMAGES[color] || TSHIRT_IMAGES.Noir;
+  return side === 'back' ? palette.back : palette.front;
+};
 
 const naturalCompare = (a, b) => {
   const strA = String(a || '');
@@ -98,6 +114,7 @@ export default function AdminOrders() {
   // ✅ Aperçu plein écran : image simple (produit standard)
   const [fullscreenImg, setFullscreenImg] = useState(null);
   // ✅ Aperçu plein écran : mockup fidèle (t-shirt + design positionné exactement)
+  // Contient désormais aussi `color` pour choisir la bonne image de t-shirt.
   const [fullscreenMockup, setFullscreenMockup] = useState(null);
 
   const [wilayas, setWilayas]                 = useState([]);
@@ -509,17 +526,18 @@ export default function AdminOrders() {
                         <div key={i} className="detail-item">
                           {item.custom && normalizedDesigns.length > 0 ? (
                             // ✅ Aperçu FIDÈLE : le design est affiché exactement à la
-                            // position / taille choisies par le client (x, y, w, h en %)
+                            // position / taille choisies par le client (x, y, w, h en %),
+                            // sur le t-shirt de la BONNE couleur et du BON côté.
                             <div className="tshirt-preview-group">
                               {normalizedDesigns.map((design, idx) => (
                                 <div key={idx} className="tshirt-preview-wrapper">
                                   <div
                                     className="tshirt-preview"
-                                    onClick={() => setFullscreenMockup(design)}
+                                    onClick={() => setFullscreenMockup({ ...design, color: item.color })}
                                     title="Cliquer pour agrandir l'aperçu exact"
                                   >
                                     <img
-                                      src={tshirtImg}
+                                      src={getTshirtImage(item.color, design.side)}
                                       alt="T-shirt"
                                       className="tshirt-preview-base"
                                       draggable={false}
@@ -700,15 +718,16 @@ export default function AdminOrders() {
                           </button>
                         </div>
 
-                        {/* ✅ Aperçu fidèle en mode édition aussi (lecture seule) */}
+                        {/* ✅ Aperçu fidèle en mode édition aussi (lecture seule),
+                            sur le t-shirt de la bonne couleur et du bon côté */}
                         {item.custom && item.designImages && item.designImages.length > 0 && (
                           <div className="tshirt-preview-group edit-preview">
                             {item.designImages.map((d, i2) => {
                               const design = normalizeDesignImage(d, i2);
                               return (
                                 <div key={i2} className="tshirt-preview-wrapper small">
-                                  <div className="tshirt-preview" onClick={() => setFullscreenMockup(design)}>
-                                    <img src={tshirtImg} alt="T-shirt" className="tshirt-preview-base" draggable={false} />
+                                  <div className="tshirt-preview" onClick={() => setFullscreenMockup({ ...design, color: item.color })}>
+                                    <img src={getTshirtImage(item.color, design.side)} alt="T-shirt" className="tshirt-preview-base" draggable={false} />
                                     <img
                                       src={design.url}
                                       alt="Design"
@@ -733,7 +752,7 @@ export default function AdminOrders() {
                           <label>Quantité<input type="number" min="1" value={item.quantity} onChange={e => setItem(idx, 'quantity', e.target.value)} /></label>
                           <label>Taille<input value={item.size || ''} onChange={e => setItem(idx, 'size', e.target.value)} placeholder="M, L, XL…" /></label>
                           <label>Coupe<input value={item.fit || ''} onChange={e => setItem(idx, 'fit', e.target.value)} placeholder="Regular, Slim…" /></label>
-                          <label>Couleur<input value={item.color || ''} onChange={e => setItem(idx, 'color', e.target.value)} /></label>
+                          <label>Couleur<input value={item.color || ''} onChange={e => setItem(idx, 'color', e.target.value)} placeholder="Noir, Blanc…" /></label>
                           <label className="full-width">URL image<input value={item.image || ''} onChange={e => setItem(idx, 'image', e.target.value)} placeholder="https://…" /></label>
                           <label className="full-width">Note custom<input value={item.note || ''} onChange={e => setItem(idx, 'note', e.target.value)} /></label>
                           {/* ✅ Note design du client, modifiable par l'admin si besoin */}
@@ -811,7 +830,12 @@ export default function AdminOrders() {
             <FaTimes />
           </button>
           <div className="lightbox-mockup" onClick={e => e.stopPropagation()}>
-            <img src={tshirtImg} alt="T-shirt" className="lightbox-mockup-base" draggable={false} />
+            <img
+              src={getTshirtImage(fullscreenMockup.color, fullscreenMockup.side)}
+              alt="T-shirt"
+              className="lightbox-mockup-base"
+              draggable={false}
+            />
             <img
               src={fullscreenMockup.url}
               alt="Design"
