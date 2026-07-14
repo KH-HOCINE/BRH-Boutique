@@ -112,8 +112,14 @@
 }
 .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* ===== RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  .product-page { grid-template-columns: 1fr; gap: 30px; padding: 20px 0 60px; }
+  .product-page {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 20px 0 30px;
+    margin-bottom: 80px;   /* ← espace suffisant avant le footer */
+  }
 }
 
 
@@ -326,13 +332,12 @@
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 28px 28px 20px;   /* padding resserré */
+  padding: 28px 28px 20px;
   position: relative;
   cursor: default;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
-/* Scrollbar discrète */
 .size-guide-modal::-webkit-scrollbar { width: 4px; }
 .size-guide-modal::-webkit-scrollbar-track { background: transparent; }
 .size-guide-modal::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
@@ -353,7 +358,6 @@
 }
 .size-guide-close:hover { transform: scale(1.1); opacity: 1; }
 
-/* ---- TITRE (plus petit, sans marge haute) ---- */
 .size-guide-title {
   font-size: 26px;
   font-weight: 700;
@@ -460,7 +464,6 @@
   border-bottom: none;
 }
 
-/* Ligne surlignée si la taille est déjà sélectionnée */
 .size-guide-table tr.size-guide-row-active td {
   font-weight: 700;
   color: var(--black);
@@ -485,7 +488,7 @@
 }
 
 
-/* ===== RESPONSIVE MOBILE ===== */
+/* ===== RESPONSIVE MODAL (petits écrans) ===== */
 
 @media (max-width: 480px) {
   .size-guide-modal {
