@@ -36,6 +36,9 @@
   color: var(--black);
   background: #fff;
   transition: border-color 0.2s;
+  box-sizing: border-box; /* ajouté : évite que le padding s'ajoute à la largeur */
+  width: 100%; /* ajouté : force la largeur complète même hors contexte flex-row */
+  min-width: 0; /* ajouté : évite le débordement dans un flex container */
 }
 
 .track-input:focus {
@@ -285,8 +288,21 @@
 
 /* Responsive */
 @media (max-width: 500px) {
-  .track-form { flex-direction: column; }
-  .track-btn  { height: 44px; }
-  .track-info-grid { grid-template-columns: 1fr; }
-  .progress-label { font-size: 9px; }
+  .track-form {
+    flex-direction: column;
+  }
+  .track-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .track-btn {
+    height: 44px;
+    width: 100%;
+  }
+  .track-info-grid {
+    grid-template-columns: 1fr;
+  }
+  .progress-label {
+    font-size: 9px;
+  }
 }

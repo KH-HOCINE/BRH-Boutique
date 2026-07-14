@@ -130,9 +130,10 @@
 
 .custom-cta:hover {
   background: transparent;
-  color: #111;
+  color: #C79659;
+  border-color: #C79659;
   transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 12px 30px rgba(199, 150, 89, 0.25);
 }
 
 .custom-cta .arrow {
