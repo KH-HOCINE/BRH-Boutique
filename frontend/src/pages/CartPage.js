@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/shop/Navbar';
+import Footer from '../components/Footer';   // ← ajout
 import { useCart } from '../context/CartContext';
 import { trackInitiateCheckout } from '../utils/metaPixel';
 import { useT } from '../translations';
@@ -16,17 +17,18 @@ export default function CartPage() {
   };
 
   if (itemCount === 0) return (
-    <div>
+    <div className="page-wrapper">
       <Navbar />
       <div className="container empty-cart">
         <h2>{t('cart.empty')}</h2>
         <Link to="/boutique" className="btn-primary">{t('home.featured.cta')}</Link>
       </div>
+      <Footer />
     </div>
   );
 
   return (
-    <div>
+    <div className="page-wrapper">
       <Navbar />
       <div className="container cart-page">
         <h1>{t('cart.title')} ({itemCount})</h1>
@@ -84,6 +86,7 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

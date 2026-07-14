@@ -3,6 +3,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../components/shop/Navbar';
+import Footer from '../components/Footer';   // ← AJOUT
 import { useCart } from '../context/CartContext';
 import { useT } from '../translations';
 import api from '../utils/api';
@@ -26,7 +27,6 @@ const PRICE_CHILD_DOUBLE = 2700;
 const PRICE_ADULT_SINGLE = 2900;
 const PRICE_ADULT_DOUBLE = 3200;
 
-// ✅ NOUVEAU : map couleur -> côté -> image du t-shirt
 const TSHIRT_IMAGES = {
   Noir:  { front: tshirtNoirAvant,  back: tshirtNoirArriere },
   Blanc: { front: tshirtBlancAvant, back: tshirtBlancArriere },
@@ -46,8 +46,6 @@ const SIZE_GUIDE_DATA = [
 ];
 
 const INITIAL_DESIGN = { file: null, url: null, x: 30, y: 22, w: 40, h: 38 };
-
-// Longueur max autorisée pour le champ de détails du design
 const DESIGN_NOTE_MAX = 500;
 
 export default function CustomizerPage() {
@@ -64,8 +62,6 @@ export default function CustomizerPage() {
   const [uploading, setUploading]   = useState(false);
   const [color, setColor]           = useState('');
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-
-  // ✅ NOUVEAU : note libre du client sur les détails de son design
   const [designNote, setDesignNote] = useState('');
 
   const canvasRef   = useRef(null);
@@ -74,9 +70,6 @@ export default function CustomizerPage() {
   const design    = designs[activeSide];
   const isChild   = CHILD_SIZES.includes(size);
   const hasBothSides = !!(designs.front.url && designs.back.url);
-
-  // ✅ NOUVEAU : image du t-shirt affichée selon la couleur choisie et le côté actif.
-  // Tant qu'aucune couleur n'est choisie, on affiche le noir par défaut.
   const currentTshirtImg = TSHIRT_IMAGES[color || 'Noir'][activeSide];
 
   let price = 0;
@@ -215,8 +208,6 @@ export default function CustomizerPage() {
     if (!color)     { toast.warning('Veuillez choisir une couleur (Noir ou Blanc)'); return; }
 
     const placements = [];
-    // ✅ On garde désormais la position EXACTE (x, y, w, h) de chaque design,
-    // ainsi que le côté (front/back), pour un affichage fidèle côté admin.
     const designPlacements = [];
 
     if (designs.front.url) {
@@ -249,7 +240,6 @@ export default function CustomizerPage() {
         product: `custom-tshirt-${Date.now()}`,
         name:    `T-shirt personnalisé (${placementLabel})`,
         price,
-        // ✅ Image du produit envoyée au panier : le visuel "avant" de la couleur choisie
         image: TSHIRT_IMAGES[color]?.front || tshirtNoirAvant,
         designImages: designPlacements,
         size,
@@ -258,7 +248,6 @@ export default function CustomizerPage() {
         quantity: qty,
         custom:  true,
         note:    `Design ${placementLabel} — contactez-nous pour envoyer votre fichier.`,
-        // ✅ NOUVEAU : détails saisis par le client sur son design
         designNote: designNote.trim(),
       },
     });
@@ -462,7 +451,6 @@ export default function CustomizerPage() {
                 </div>
               </div>
 
-              {/* ✅ NOUVEAU : champ libre pour les détails du design */}
               <div className="option-group">
                 <label htmlFor="design-note">Détails sur votre design (optionnel)</label>
                 <textarea
@@ -651,6 +639,9 @@ export default function CustomizerPage() {
           </div>
         </div>
       )}
+
+      {/* ─── FOOTER AJOUTÉ ICI ─── */}
+      <Footer />
     </div>
   );
 }

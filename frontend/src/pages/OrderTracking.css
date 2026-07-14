@@ -1,7 +1,21 @@
+/* ============================================================
+   OrderTracking.css
+   ============================================================ */
+
+/* ---- Enveloppe principale (sticky footer) ---- */
+.track-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ---- Contenu de la page ---- */
 .track-page {
-  padding: 60px 20px 80px;
+  padding: 60px 20px 30px;   /* plus de marge basse inutile */
   max-width: 640px;
   margin: 0 auto;
+  width: 100%;
+  flex: 1;  /* pousse le footer vers le bas si le contenu est court */
 }
 
 .track-title {
@@ -36,9 +50,9 @@
   color: var(--black);
   background: #fff;
   transition: border-color 0.2s;
-  box-sizing: border-box; /* ajouté : évite que le padding s'ajoute à la largeur */
-  width: 100%; /* ajouté : force la largeur complète même hors contexte flex-row */
-  min-width: 0; /* ajouté : évite le débordement dans un flex container */
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .track-input:focus {

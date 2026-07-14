@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Navbar from '../components/shop/Navbar';
+import Footer from '../components/Footer';
 import { useT, useLang } from '../translations';
 import api from '../utils/api';
 import './OrderTracking.css';
@@ -115,7 +116,7 @@ export default function OrderTracking() {
   const locale   = lang === 'ar' ? 'ar-DZ' : lang === 'en' ? 'en-DZ' : 'fr-DZ';
 
   return (
-    <div>
+    <div className="track-page-wrapper">
       <Navbar />
       <div className="track-page container">
         <h1 className="track-title">{t('tracking.title')}</h1>
@@ -211,6 +212,7 @@ export default function OrderTracking() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

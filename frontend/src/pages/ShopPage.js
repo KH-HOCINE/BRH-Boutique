@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import Navbar from '../components/shop/Navbar';
+import Footer from '../components/Footer';   // ← AJOUT
 import ProductCard from '../components/shop/ProductCard';
 import { useSearch } from '../context/SearchContext';
 import api from '../utils/api';
@@ -105,6 +106,9 @@ export default function ShopPage() {
           </>
         )}
       </div>
+
+      {/* ─── FOOTER AJOUTÉ ICI ─── */}
+      <Footer />
     </div>
   );
 }

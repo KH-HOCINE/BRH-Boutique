@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../components/shop/Navbar';
+import Footer from '../components/Footer';   // ← AJOUT
 import { useCart } from '../context/CartContext';
 import { trackViewContent, trackAddToCart } from '../utils/metaPixel';
 import api from '../utils/api';
@@ -15,7 +16,6 @@ import tshirtBlancArriere from '../images/Tshirt blanc arriere.png';
 const SIZE_ORDER   = ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL'];
 const CHILD_SIZES  = ['6ans','8ans','10ans','12ans','14ans/Xs'];
 
-// ✅ NOUVEAU : map couleur -> côté -> image du t-shirt (mêmes 4 visuels que le configurateur)
 const TSHIRT_IMAGES = {
   Noir:  { front: tshirtNoirAvant,  back: tshirtNoirArriere },
   Blanc: { front: tshirtBlancAvant, back: tshirtBlancArriere },
@@ -53,10 +53,6 @@ export default function ProductPage() {
   };
 
   const currentPrice = getCurrentPrice();
-
-  // ✅ NOUVEAU : image du guide des tailles selon la couleur choisie par le client.
-  // Le guide n'a pas de notion "avant/dos" séparée : on utilise la vue "avant" de la
-  // couleur sélectionnée (Noir par défaut si aucune couleur n'est encore choisie).
   const sizeGuideImg = (TSHIRT_IMAGES[color] || TSHIRT_IMAGES.Noir).front;
 
   useEffect(() => {
@@ -341,7 +337,6 @@ export default function ProductPage() {
               onClick={() => setSizeGuideOpen(false)}
               aria-label={t('image.close')}
             >×</button>
-            {/* SUPPRESSION DE LA LIGNE size-guide-ref */}
             <h2 className="size-guide-title">{t('size_guide.title')}</h2>
             <p className="size-guide-subtitle">{t('size_guide.subtitle')}</p>
 
@@ -352,7 +347,6 @@ export default function ProductPage() {
                   alt="Schéma des mesures du t-shirt"
                   style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
                 />
-                {/* Flèche verticale (longueur A) */}
                 <div className="measure-arrow measure-arrow-vertical" style={{
                   position: 'absolute', left: '15%', top: '10%', bottom: '10%',
                   width: '2px', background: '#c0392b', transform: 'translateX(-50%)',
@@ -377,7 +371,6 @@ export default function ProductPage() {
                     color: '#c0392b', fontWeight: 'bold', fontSize: '18px', fontFamily: 'Georgia, serif',
                   }}>A</span>
                 </div>
-                {/* Flèche horizontale (largeur B) */}
                 <div className="measure-arrow measure-arrow-horizontal" style={{
                   position: 'absolute', top: '55%', left: '25%', right: '25%',
                   height: '2px', background: 'white', transform: 'translateY(-50%)',
@@ -442,6 +435,9 @@ export default function ProductPage() {
           </div>
         </div>
       )}
+
+      {/* ─── FOOTER AJOUTÉ ICI ─── */}
+      <Footer />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../components/shop/Navbar';
+import Footer from '../components/Footer';   // ← ajout
 import { useCart } from '../context/CartContext';
 import { trackPurchase } from '../utils/metaPixel';
 import api from '../utils/api';
@@ -242,7 +243,7 @@ export default function CheckoutPage() {
 
   // ── Rendu ──────────────────────────────────────────────────
   return (
-    <div>
+    <div className="page-wrapper">
       <Navbar />
       <div className="container checkout-page">
         <h1>{t('checkout.title')}</h1>
@@ -392,8 +393,6 @@ export default function CheckoutPage() {
               </div>
             )}
 
-          
-
             {/* Notes */}
             <div className="form-group">
               <label><FaStickyNote className="input-icon" /> {t('checkout.notes')}</label>
@@ -446,6 +445,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
