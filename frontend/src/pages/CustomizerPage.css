@@ -26,12 +26,14 @@
   font-size: 14px;
   font-weight: 500;
   transition: color .2s;
+  white-space: nowrap;
 }
 .customizer-back:hover {
   color: #000;
 }
 .customizer-header-text {
   flex: 1;
+  min-width: 0;
 }
 .customizer-eyebrow {
   display: block;
@@ -85,6 +87,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 .side-tab:hover {
   color: #333;
@@ -135,6 +138,8 @@
   cursor: pointer;
   transition: background .2s;
   gap: 6px;
+  text-align: center;
+  padding: 0 16px;
 }
 .tshirt-dropzone:hover {
   background: rgba(0,0,0,0.02);
@@ -247,6 +252,7 @@
   color: #333;
   cursor: pointer;
   transition: all .2s;
+  white-space: nowrap;
 }
 .btn-upload:hover:not(:disabled) {
   border-color: #1a1a2e;
@@ -326,6 +332,7 @@
 .placement-pills {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 .placement-pill {
   padding: 6px 16px;
@@ -335,6 +342,7 @@
   font-size: 13px;
   cursor: pointer;
   transition: all .2s;
+  white-space: nowrap;
 }
 .placement-pill:hover {
   border-color: #aaa;
@@ -359,6 +367,7 @@
 .summary-row {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   font-size: 13px;
   padding: 4px 0;
 }
@@ -371,26 +380,28 @@
 }
 
 /* ── Grille des tailles ────────────────────────────── */
+/* Colonnes fixes (et non auto-fill) pour éviter que les boutons
+   deviennent trop étroits et cassent le texte lettre par lettre. */
 .size-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
 }
 .size-btn {
   padding: 8px 4px;
   border: 1.5px solid #ddd;
   border-radius: 8px;
   background: white;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all .2s;
   text-align: center;
-  line-height: 1.25;
+  line-height: 1.3;
   white-space: normal;
-  word-break: break-word;
-  hyphens: auto;
-  min-height: 40px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  min-height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -414,6 +425,7 @@
 .fit-pills {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 .fit-pill {
   padding: 6px 16px;
@@ -423,6 +435,7 @@
   font-size: 13px;
   cursor: pointer;
   transition: all .2s;
+  white-space: nowrap;
 }
 .fit-pill:hover {
   border-color: #aaa;
@@ -462,6 +475,7 @@
 .qty-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
 }
 .qty-controls {
@@ -577,10 +591,15 @@
   line-height: 1.4;
 }
 
-/* ── Responsive ─────────────────────────────────────── */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* ── Tablette / petit écran ─────────────────────────── */
 @media (max-width: 900px) {
   .customizer-layout {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
   .customizer-options-col {
     order: 2;
@@ -589,38 +608,110 @@
     order: 1;
   }
   .tshirt-canvas {
-    max-width: 400px;
+    max-width: 420px;
+  }
+  .size-grid {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
+/* ── Mobile ──────────────────────────────────────────── */
 @media (max-width: 600px) {
   .customizer-page {
     padding: 12px 12px 40px;
   }
-  .customizer-header-text h1 {
-    font-size: 20px;
-  }
+
   .customizer-header {
     gap: 12px;
     margin-bottom: 20px;
+    padding-bottom: 12px;
   }
+  .customizer-header-text h1 {
+    font-size: 19px;
+    line-height: 1.25;
+  }
+  .customizer-eyebrow {
+    font-size: 11px;
+  }
+  .customizer-back {
+    font-size: 13px;
+  }
+
+  .side-tabs {
+    width: 100%;
+  }
+  .side-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .tshirt-canvas {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
   .options-card {
     padding: 16px;
+    border-radius: 12px;
   }
+  .options-card h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+  .option-group {
+    margin-bottom: 16px;
+  }
+
+  /* Grille de tailles : colonnes fixes plus larges au lieu de
+     l'auto-fill qui entassait 9 colonnes de 40px et cassait le
+     texte lettre par lettre (ex: "14ans/Xs"). */
   .size-grid {
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
+  .size-btn {
+    font-size: 12.5px;
+    padding: 8px 6px;
+    min-height: 48px;
+  }
+
+  .selector-label-row {
+    align-items: flex-start;
+  }
+
+  .placement-pills,
+  .fit-pills {
+    gap: 8px;
+  }
+  .placement-pill,
+  .fit-pill {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+  }
+
+  .color-options {
+    gap: 8px;
+  }
+  .color-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+  }
+
+  .qty-row {
+    justify-content: space-between;
+    gap: 12px;
+  }
+
   .payment-note {
     font-size: 12px;
     padding: 12px;
   }
-  .tshirt-canvas {
-    max-width: 100%;
-  }
 
-  /* ✅ Sur mobile, les contrôles ne se dévoilent plus au survol
-     (le survol n'existe pas au doigt) : on les affiche en permanence
-     dès qu'un design est présent, avec des cibles plus grandes. */
+  /* Contrôles du canvas toujours visibles au doigt (pas de survol) */
   .resize-handle {
     opacity: 1;
     width: 28px;
@@ -637,9 +728,7 @@
     font-size: 18px;
   }
 
-  /* ✅ Barre de commande "sticky" en bas d'écran sur mobile :
-     le client garde toujours le prix + le bouton sous les yeux
-     pendant qu'il ajuste son design. */
+  /* Barre de commande "sticky" en bas d'écran sur mobile */
   .options-card .btn-order {
     position: fixed;
     left: 12px;
@@ -651,7 +740,6 @@
   .options-card .price-note {
     display: none; /* redondant avec le prix affiché dans le bouton sticky */
   }
-  /* on laisse de la place en bas de page pour ne pas masquer le contenu */
   .customizer-page {
     padding-bottom: 110px;
   }
@@ -671,21 +759,32 @@
   }
 }
 
+/* ── Très petit écran ──────────────────────────────── */
 @media (max-width: 400px) {
+  .customizer-header-text h1 {
+    font-size: 17px;
+  }
   .side-tab {
-    padding: 8px 14px;
-    font-size: 13px;
+    padding: 8px 6px;
+    font-size: 12px;
   }
   .size-grid {
-    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
-    gap: 5px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .size-btn {
+    font-size: 12px;
+    min-height: 44px;
   }
   .color-btn {
-    padding: 6px 14px;
+    padding: 7px 10px;
     font-size: 13px;
   }
   .options-card h2 {
-    font-size: 16px;
+    font-size: 15px;
+  }
+  .qty-total {
+    font-size: 14px;
   }
 }
 
@@ -859,22 +958,33 @@
 }
 
 @media (max-width: 480px) {
+  .size-guide-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
   .size-guide-modal {
-    padding: 32px 20px 24px;
-    border-radius: 12px;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 16px 16px 0 0;
+    padding: 28px 18px 24px;
   }
   .size-guide-title {
-    font-size: 24px;
+    font-size: 22px;
     padding-right: 28px;
+  }
+  .size-guide-subtitle {
+    font-size: 12px;
+    margin-bottom: 16px;
   }
   .size-guide-diagram {
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    padding: 18px 16px;
+    padding: 16px 14px;
+    margin-bottom: 20px;
   }
   .size-guide-diagram-img {
-    width: 160px;
+    width: 150px;
   }
   .size-guide-diagram-legend {
     width: 100%;
@@ -887,7 +997,11 @@
   .size-guide-table td,
   .size-guide-table th {
     font-size: 13px;
-    padding: 12px 0;
+    padding: 11px 0;
+  }
+  .size-guide-close {
+    top: 10px;
+    right: 12px;
   }
 }
 
@@ -921,6 +1035,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 .color-btn:hover {
   border-color: #aaa;
