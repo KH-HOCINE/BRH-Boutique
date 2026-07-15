@@ -256,60 +256,6 @@
   color: #C79659;
 }
 
-/* Recherche dans le menu mobile */
-.mobile-search {
-  position: relative;
-  margin-bottom: 8px;
-}
-
-.mobile-search input {
-  width: 100%;
-  padding: 10px 40px 10px 16px;
-  border: 1.5px solid #333;
-  border-radius: 40px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  outline: none;
-  background: transparent;
-  color: #fff;
-  transition: border-color 0.2s;
-}
-
-.mobile-search input:focus {
-  border-color: #C79659;
-}
-
-.mobile-search button {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #999;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  transition: color 0.2s;
-}
-
-.mobile-search button:active {
-  color: #C79659;
-}
-
-/* Langue dans le menu mobile */
-.mobile-lang {
-  display: flex;
-  gap: 6px;
-  padding-top: 14px;
-  background: #1a1a1a;
-  border-radius: 40px;
-  padding: 4px;
-  margin-top: 14px;
-  width: fit-content;
-}
-
 /* ── RTL (arabe) ── */
 [dir="rtl"] .navbar-inner {
   flex-direction: row-reverse;
@@ -369,10 +315,35 @@
 
 /* ── Mobile : bascule vers hamburger ── */
 @media (max-width: 700px) {
-  .navbar-links,
-  .navbar-search,
-  .lang-switcher {
+  /* On cache uniquement les liens de navigation */
+  .navbar-links {
     display: none;
+  }
+
+  /* La recherche et la langue restent visibles */
+  .navbar-search {
+    display: flex; /* s'assurer qu'il est affiché */
+    max-width: 140px;
+    margin: 0 8px;
+  }
+  .navbar-search input {
+    padding: 8px 32px 8px 12px;
+    font-size: 12px;
+  }
+  .search-icon {
+    right: 6px;
+    width: 30px;
+  }
+
+  .lang-switcher {
+    padding: 2px;
+    gap: 0;
+  }
+  .lang-btn {
+    padding: 4px 6px;
+    font-size: 10px;
+    min-width: 26px;
+    text-align: center;
   }
 
   .hamburger-btn {
@@ -388,6 +359,38 @@
   }
 
   .navbar-inner {
-    padding: 10px 16px;
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .navbar-cart svg {
+    width: 20px;
+    height: 20px;
+  }
+  .cart-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
+    top: -6px;
+    right: -6px;
+  }
+}
+
+/* ── Très petits écrans ── */
+@media (max-width: 480px) {
+  .navbar-search {
+    max-width: 100px;
+    margin: 0 4px;
+  }
+  .navbar-search input {
+    padding: 6px 28px 6px 8px;
+    font-size: 11px;
+  }
+  .lang-btn {
+    padding: 3px 4px;
+    font-size: 9px;
+  }
+  .logo-image {
+    height: 40px;
   }
 }

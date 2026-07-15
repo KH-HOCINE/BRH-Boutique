@@ -42,7 +42,7 @@ export default function Navbar() {
           <Link to="/suivi"    className={pathname === '/suivi'   ? 'active' : ''} onClick={closeMenu}>{t('nav.tracking')}</Link>
         </div>
 
-        {/* Formulaire de recherche — masqué sur mobile */}
+        {/* Formulaire de recherche — visible sur mobile */}
         <form className="navbar-search" onSubmit={handleSearchSubmit}>
           <input
             type="text"
@@ -58,7 +58,7 @@ export default function Navbar() {
           </button>
         </form>
 
-        {/* Sélecteur de langue — masqué sur mobile */}
+        {/* Sélecteur de langue — visible sur mobile */}
         <div className="lang-switcher">
           {Object.values(LANGUAGES).map(({ code, label }) => (
             <button
@@ -96,42 +96,12 @@ export default function Navbar() {
 
       </div>
 
-      {/* Menu mobile déroulant */}
+      {/* Menu mobile déroulant — seulement les liens */}
       {menuOpen && (
         <div className="mobile-menu">
-          {/* Recherche */}
-          <form className="mobile-search" onSubmit={handleSearchSubmit}>
-            <input
-              type="text"
-              placeholder={t('nav.search')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button type="submit" aria-label="Rechercher">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="10" cy="10" r="7" />
-                <line x1="21" y1="21" x2="15" y2="15" />
-              </svg>
-            </button>
-          </form>
-
-          {/* Liens */}
           <Link to="/"         className={pathname === '/'        ? 'active' : ''} onClick={closeMenu}>{t('nav.home')}</Link>
           <Link to="/boutique" className={pathname === '/boutique' ? 'active' : ''} onClick={closeMenu}>{t('nav.catalog')}</Link>
           <Link to="/suivi"    className={pathname === '/suivi'   ? 'active' : ''} onClick={closeMenu}>{t('nav.tracking')}</Link>
-
-          {/* Langue */}
-          <div className="mobile-lang">
-            {Object.values(LANGUAGES).map(({ code, label }) => (
-              <button
-                key={code}
-                className={`lang-btn${lang === code ? ' lang-btn--active' : ''}`}
-                onClick={() => { setLang(code); closeMenu(); }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
         </div>
       )}
     </nav>
