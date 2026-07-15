@@ -32,18 +32,23 @@
 }
 
 /* =====================================================
-   Logo
+   Logo – remplacé par l'image
 ===================================================== */
 
 .sidebar-logo {
-  padding: 28px 24px;
-
-  font-size: 26px;
-  font-weight: bold;
-
-  font-family: "Playfair Display", serif;
-
+  padding: 24px 20px;   /* espace autour du logo */
   border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  justify-content: center; /* centrage horizontal */
+  align-items: center;
+}
+
+.sidebar-logo-img {
+  width: 100%;          /* occupe toute la largeur disponible */
+  max-width: 160px;     /* limite pour ne pas déborder */
+  height: auto;         /* garde le ratio */
+  object-fit: contain;
+  display: block;
 }
 
 /* =====================================================
@@ -244,8 +249,12 @@
 
 @media (max-width: 480px) {
 
+  /* Ajustement du logo sur très petits écrans */
   .sidebar-logo {
-    font-size: 22px;
+    padding: 16px;
+  }
+  .sidebar-logo-img {
+    max-width: 120px;
   }
 
   .sidebar-nav a {
@@ -260,5 +269,4 @@
   .sidebar-user {
     padding: 18px;
   }
-
 }

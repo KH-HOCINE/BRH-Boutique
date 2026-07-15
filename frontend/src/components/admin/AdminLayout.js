@@ -13,6 +13,8 @@ import {
   FiX,
 } from "react-icons/fi";
 
+import logo from "../../images/Logo.png"; // Import du logo
+
 import "./AdminLayout.css";
 
 export default function AdminLayout({ children }) {
@@ -61,8 +63,9 @@ export default function AdminLayout({ children }) {
 
       <aside className={`admin-sidebar ${menuOpen ? "open" : ""}`}>
 
+        {/* Logo remplacé par l'image */}
         <div className="sidebar-logo">
-          BHR Boutique
+          <img src={logo} alt="Logo boutique" className="sidebar-logo-img" />
         </div>
 
         <nav className="sidebar-nav">
