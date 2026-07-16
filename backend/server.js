@@ -13,6 +13,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://brh-boutique.vercel.app',
+  'https://brhboutique.store',
+  'https://www.brhboutique.store',
 ];
 
 app.use(cors({
