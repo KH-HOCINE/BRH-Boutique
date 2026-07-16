@@ -15,8 +15,8 @@
       "dest": "/static/$1"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
+      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|gif|webp|json|txt|xml|woff|woff2|ttf))",
+      "dest": "/$1"
     },
     {
       "src": "/(.*)",
