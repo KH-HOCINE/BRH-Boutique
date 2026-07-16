@@ -68,6 +68,11 @@
   font-size: 15px;
 }
 
+/* ← AJOUT : fige l'ordre visuel (texte puis flèche) même en arabe (RTL) */
+.hero-btn {
+  direction: ltr;
+}
+
 .btn-primary:hover {
   background: transparent;
   color: #C79659;
@@ -104,6 +109,7 @@
   color: var(--gray-500);
   transition: color 0.2s;
   text-decoration: none;
+  direction: ltr; /* ← AJOUT : même logique pour garder la flèche à droite du texte */
 }
 
 .see-all:hover {
@@ -139,6 +145,7 @@
   transition: all 0.3s ease;
   letter-spacing: 1px;
   border: 2px solid var(--black);
+  direction: ltr; /* ← AJOUT : fige l'ordre visuel (texte puis flèche) même en arabe (RTL) */
 }
 
 .shop-all-btn:hover {
