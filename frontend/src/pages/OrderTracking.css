@@ -126,6 +126,8 @@
   align-items: flex-start;
   margin-bottom: 28px;
   position: relative;
+  direction: ltr; /* empêche le navigateur d'inverser l'ordre des étapes en RTL */
+  unicode-bidi: isolate;
 }
 
 .progress-item {
