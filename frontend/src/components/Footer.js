@@ -11,7 +11,7 @@ export default function Footer() {
       <div className="footer-brand">
         <img src={Logo} alt="Logo Boutique" className="footer-logo-image" />
         <p className="footer-copy">
-          © {new Date().getFullYear()} BRH boutique — {t('footer.rights')}
+          © {new Date().getFullYear()} BRH  — {t('footer.rights')}
         </p>
       </div>
 
