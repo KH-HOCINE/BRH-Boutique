@@ -1,8 +1,9 @@
-<!DOCTYPE html> 
-<html lang="fr"> 
- <head>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
   <meta charset="utf-8" />
 
+  <!-- Responsive -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0a0a0a" />
 
@@ -11,36 +12,48 @@
 
   <meta
     name="description"
-    content="Découvrez BRH Boutique, votre boutique de vêtements en ligne en Algérie. Vêtements tendance, livraison rapide dans les 58 wilayas et paiement à la livraison."
+    content="Découvrez BRH Boutique, votre boutique de vêtements en ligne en Algérie. Des vêtements tendance pour homme et femme avec une livraison rapide dans les 58 wilayas et un paiement à la livraison."
   />
 
   <meta
     name="keywords"
-    content="BRH Boutique, vêtements Algérie, boutique en ligne Algérie, mode homme, mode femme, shopping Algérie"
+    content="BRH Boutique, vêtements Algérie, boutique en ligne Algérie, mode homme, mode femme, shopping Algérie, vêtements tendance, livraison Algérie"
   />
 
   <meta name="author" content="BRH Boutique" />
   <meta name="robots" content="index, follow" />
 
+  <!-- Canonical -->
   <link rel="canonical" href="https://brhboutique.store/" />
 
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="%PUBLIC_URL%/Logo.png" />
+
+  <!-- Manifest -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="BRH Boutique" />
-  <meta property="og:title" content="BRH Boutique | Boutique de vêtements en ligne en Algérie" />
+  <meta property="og:locale" content="fr_DZ" />
+
+  <meta
+    property="og:title"
+    content="BRH Boutique | Boutique de vêtements en ligne en Algérie"
+  />
 
   <meta
     property="og:description"
-    content="Découvrez les dernières tendances chez BRH Boutique avec une livraison rapide dans toute l'Algérie."
+    content="Découvrez les dernières tendances chez BRH Boutique avec une livraison rapide partout en Algérie."
   />
 
   <meta property="og:url" content="https://brhboutique.store/" />
   <meta property="og:image" content="https://brhboutique.store/Logo.png" />
+  <meta property="og:image:alt" content="Logo BRH Boutique" />
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
+
   <meta
     name="twitter:title"
     content="BRH Boutique | Boutique de vêtements"
@@ -56,6 +69,31 @@
     content="https://brhboutique.store/Logo.png"
   />
 
+  <!-- Hreflang -->
+  <link rel="alternate" hreflang="fr" href="https://brhboutique.store/" />
+  <link rel="alternate" hreflang="x-default" href="https://brhboutique.store/" />
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Store",
+    "name":"BRH Boutique",
+    "url":"https://brhboutique.store",
+    "logo":"https://brhboutique.store/Logo.png",
+    "image":"https://brhboutique.store/Logo.png",
+    "description":"Boutique de vêtements en ligne en Algérie.",
+    "address":{
+      "@type":"PostalAddress",
+      "addressCountry":"DZ"
+    },
+    "sameAs":[
+      "https://www.instagram.com/hmk_clothing_store",
+      "https://www.facebook.com/share/19K1GqED7B/"
+    ]
+  }
+  </script>
+
   <!-- Meta Pixel Code -->
   <script>
     !function(f,b,e,v,n,t,s)
@@ -64,8 +102,12 @@
     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
     n.queue=[];t=b.createElement(e);t.async=!0;
     t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    s.parentNode.insertBefore(t,s)}
+    (window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
+
+    fbq('init', 'VOTRE_PIXEL_ID');
+    fbq('track', 'PageView');
   </script>
 
   <noscript>
@@ -78,9 +120,16 @@
     />
   </noscript>
   <!-- End Meta Pixel Code -->
+
 </head>
-  <body> 
-    <noscript>Activez JavaScript pour utiliser cette application.</noscript> 
-    <div id="root"></div> 
-  </body> 
+
+<body>
+
+  <noscript>
+    Activez JavaScript pour utiliser cette application.
+  </noscript>
+
+  <div id="root"></div>
+
+</body>
 </html>
