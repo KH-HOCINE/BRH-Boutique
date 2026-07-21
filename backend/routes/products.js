@@ -5,7 +5,6 @@ const { protect } = require('../middleware/auth');
 const { storage, cloudinary } = require('../config/cloudinary');
 const router  = express.Router();
 
-// ── Configuration Multer (upload vers Cloudinary) ─────────────
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -16,17 +15,29 @@ const upload = multer({
   },
 });
 
+// ── Mini cache en mémoire pour la liste "featured" (change rarement) ──
+let featuredCache = { data: null, expiresAt: 0 };
+const FEATURED_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 // ── Routes publiques ──────────────────────────────────────────
 
-// GET /api/products — tous les produits disponibles (avec pagination)
+// GET /api/products
 router.get('/', async (req, res) => {
   try {
-    const { category, search, featured, limit, skip } = req.query;
-    const filter = { isAvailable: true };
+    const { category, search, featured } = req.query;
 
+    // Sert depuis le cache si on demande juste les produits vedettes
+    if (featured === 'true' && !category && !search) {
+      const now = Date.now();
+      if (featuredCache.data && featuredCache.expiresAt > now) {
+        res.set('Cache-Control', 'public, max-age=60');
+        return res.json(featuredCache.data);
+      }
+    }
+
+    const filter = { isAvailable: true };
     if (category) filter.category = category;
     if (featured) filter.isFeatured = true;
-
     if (search) {
       filter.$or = [
         { name:  { $regex: search, $options: 'i' } },
@@ -34,34 +45,23 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    // Pagination : si limit = 0 ou non défini, on renvoie tout (0 = infini)
-    const limitVal = parseInt(limit) || 0;
-    const skipVal  = parseInt(skip)  || 0;
-
-    // On utilise .lean() pour de meilleures performances (objets JS purs)
+    // .lean() = objets JS bruts au lieu de documents Mongoose complets → beaucoup plus rapide
     const products = await Product.find(filter)
       .sort({ createdAt: -1 })
-      .skip(skipVal)
-      .limit(limitVal)
       .lean();
 
-    // Compter le total pour la pagination (utile pour la boutique)
-    const total = await Product.countDocuments(filter);
+    if (featured === 'true' && !category && !search) {
+      featuredCache = { data: products, expiresAt: Date.now() + FEATURED_TTL_MS };
+    }
 
-    res.json({
-      products,
-      total,
-      limit: limitVal,
-      skip: skipVal,
-      // pages: limitVal > 0 ? Math.ceil(total / limitVal) : 1,
-    });
+    res.set('Cache-Control', 'public, max-age=60'); // cache 60s côté navigateur/CDN
+    res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// GET /api/products/admin/all — tous les produits (admin)
-// ⚠️ Cette route doit être AVANT /:id pour ne pas être interceptée
+// GET /api/products/admin/all — protégé, doit rester AVANT /:id
 router.get('/admin/all', protect, async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 }).lean();
@@ -76,6 +76,7 @@ router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).lean();
     if (!product) return res.status(404).json({ message: 'Produit introuvable' });
+    res.set('Cache-Control', 'public, max-age=60');
     res.json(product);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -84,7 +85,11 @@ router.get('/:id', async (req, res) => {
 
 // ── Routes admin (protégées) ──────────────────────────────────
 
-// POST /api/products — créer un produit
+function invalidateFeaturedCache() {
+  featuredCache = { data: null, expiresAt: 0 };
+}
+
+// POST /api/products
 router.post('/', protect, upload.array('images', 5), async (req, res) => {
   try {
     const {
@@ -92,7 +97,6 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
       sizes, fits, colors, stock, isFeatured, anime,
     } = req.body;
 
-    // f.path contient l'URL Cloudinary complète (https://res.cloudinary.com/...)
     const images = req.files ? req.files.map(f => f.path) : [];
 
     const product = await Product.create({
@@ -110,6 +114,7 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
       images,
     });
 
+    invalidateFeaturedCache();
     res.status(201).json(product);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -140,7 +145,6 @@ router.put('/:id', protect, upload.array('images', 5), async (req, res) => {
     };
 
     if (req.files && req.files.length > 0) {
-      // Supprimer les anciennes images Cloudinary avant de sauvegarder les nouvelles
       const existing = await Product.findById(req.params.id);
       if (existing?.images?.length) {
         for (const url of existing.images) {
@@ -155,12 +159,13 @@ router.put('/:id', protect, upload.array('images', 5), async (req, res) => {
           }
         }
       }
-
       update.images = req.files.map(f => f.path);
     }
 
     const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true });
     if (!product) return res.status(404).json({ message: 'Produit introuvable' });
+
+    invalidateFeaturedCache();
     res.json(product);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -173,7 +178,6 @@ router.delete('/:id', protect, async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ message: 'Produit introuvable' });
 
-    // Supprimer les images Cloudinary associées
     if (product.images?.length) {
       for (const url of product.images) {
         const parts = url.split('/');
@@ -188,6 +192,7 @@ router.delete('/:id', protect, async (req, res) => {
       }
     }
 
+    invalidateFeaturedCache();
     res.json({ message: 'Produit supprimé' });
   } catch (err) {
     res.status(500).json({ message: err.message });

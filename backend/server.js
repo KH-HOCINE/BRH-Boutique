@@ -3,12 +3,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const compression = require('compression'); // npm i compression
 require('dotenv').config();
 
-// IMPORT du modèle Product pour créer les index au démarrage
-const Product = require('./models/Product');
-
 const app = express();
+
+// ─────────────────────────────────────────────
+// Compression Gzip (réponses JSON + images passées par le proxy plus légères)
+// ─────────────────────────────────────────────
+app.use(compression());
 
 // ─────────────────────────────────────────────
 // Configuration CORS
@@ -22,21 +25,9 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Autoriser les requêtes sans Origin (Postman, curl...)
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    // Autoriser localhost
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    // Autoriser toutes les previews Vercel
-    if (origin.endsWith('.vercel.app')) {
-      return callback(null, true);
-    }
-
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
     return callback(new Error(`Origin non autorisée : ${origin}`));
   },
   credentials: true,
@@ -59,7 +50,7 @@ app.use('/api/anderson', require('./routes/anderson'));
 app.use('/api/upload', require('./routes/upload'));
 
 // ─────────────────────────────────────────────
-// Route de test
+// Route de test / health check (utilisée pour le "réveil" du serveur)
 // ─────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({
@@ -68,37 +59,33 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/api/health', (req, res) => res.status(200).send('ok'));
+
 // ─────────────────────────────────────────────
-// Connexion MongoDB et création des index
+// Connexion MongoDB
 // ─────────────────────────────────────────────
-mongoose.connect(process.env.MONGO_URI)
-  .then(async () => {
+mongoose.set('strictQuery', true);
+
+mongoose.connect(process.env.MONGO_URI, {
+  maxPoolSize: 10, // réutilise les connexions au lieu d'en recréer
+})
+  .then(() => {
     console.log('✅ MongoDB connecté');
-
-    // ── Création des index pour accélérer les requêtes ──
-    try {
-      // Index composé pour le filtre (isAvailable + isFeatured) très utilisé
-      await Product.collection.createIndex(
-        { isAvailable: 1, isFeatured: 1 },
-        { background: true }
-      );
-      
-      // Index pour le tri par date (création décroissante)
-      await Product.collection.createIndex(
-        { createdAt: -1 },
-        { background: true }
-      );
-
-      console.log('✅ Index MongoDB vérifiés/créés avec succès');
-    } catch (indexErr) {
-      console.warn('⚠️ Attention lors de la création des index :', indexErr.message);
-    }
 
     const PORT = process.env.PORT || 5000;
 
     app.listen(PORT, () => {
       console.log(`🚀 Serveur lancé sur le port ${PORT}`);
     });
+
+    // ── Auto-ping toutes les 10 min pour éviter la mise en veille ──
+    // (n'a d'effet que si SELF_URL est défini dans les variables d'env,
+    // ex: SELF_URL=https://ton-backend.onrender.com)
+    if (process.env.SELF_URL) {
+      setInterval(() => {
+        fetch(`${process.env.SELF_URL}/api/health`).catch(() => {});
+      }, 10 * 60 * 1000);
+    }
   })
   .catch((err) => {
     console.error('❌ Erreur MongoDB :', err.message);
@@ -110,16 +97,12 @@ mongoose.connect(process.env.MONGO_URI)
 // ─────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('❌ ERREUR :', err);
-
   res.status(500).json({
     success: false,
     message: err.message || 'Erreur serveur',
   });
 });
 
-// ─────────────────────────────────────────────
-// Gestion des promesses non capturées
-// ─────────────────────────────────────────────
 process.on('unhandledRejection', (reason) => {
   console.error('❌ UNHANDLED REJECTION:', reason);
 });

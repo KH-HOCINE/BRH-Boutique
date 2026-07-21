@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../components/shop/Navbar';
-import Footer from '../components/Footer';   // ← AJOUT
+import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
+import { useProducts } from '../context/ProductsContext'; // ← AJOUT
 import { trackViewContent, trackAddToCart } from '../utils/metaPixel';
-import api from '../utils/api';
 import { useT } from '../translations';
 import './ProductPage.css';
 import tshirtNoirAvant from '../images/Tshirt noir avant.png';
@@ -33,6 +33,7 @@ export default function ProductPage() {
   const { id }       = useParams();
   const navigate     = useNavigate();
   const { dispatch } = useCart();
+  const { getProduct } = useProducts(); // ← AJOUT : accès au cache partagé
   const t = useT();
 
   const [product, setProduct]             = useState(null);
@@ -61,15 +62,33 @@ export default function ProductPage() {
     }
   }, [size]);
 
+  // ── Chargement du produit via le cache partagé (Home + ProductPage) ──
   useEffect(() => {
-    api.get(`/products/${id}`)
-      .then(res => {
-        setProduct(res.data);
-        trackViewContent(res.data);
+    let mounted = true;
+    setLoading(true);
+
+    // Réinitialise les sélecteurs quand on change de produit
+    setSize('');
+    setFit('');
+    setColor('');
+    setQty(1);
+    setImgIndex(0);
+
+    getProduct(id)
+      .then(data => {
+        if (!mounted) return;
+        setProduct(data);
+        trackViewContent(data);
       })
-      .catch(() => navigate('/boutique'))
-      .finally(() => setLoading(false));
-  }, [id, navigate]);
+      .catch(() => {
+        if (mounted) navigate('/boutique');
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => { mounted = false; };
+  }, [id, navigate, getProduct]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -436,7 +455,6 @@ export default function ProductPage() {
         </div>
       )}
 
-      {/* ─── FOOTER AJOUTÉ ICI ─── */}
       <Footer />
     </div>
   );

@@ -3,7 +3,8 @@ import { useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { initMetaPixel } from './utils/metaPixel';
 import { SearchProvider } from './context/SearchContext';
-import { LanguageProvider } from './context/LanguageContext'; // ← Ajout
+import { LanguageProvider } from './context/LanguageContext';
+import { ProductsProvider } from './context/ProductsContext'; // ← Ajout
 import CustomizerPage from './pages/CustomizerPage';
 // ...
 
@@ -35,30 +36,31 @@ function App() {
 
   return (
     <LanguageProvider>          {/* ← Enveloppe tout : gère la langue active + RTL */}
-      <SearchProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* ── Boutique ── */}
-            <Route path="/"               element={<HomePage />} />
-            <Route path="/boutique"       element={<ShopPage />} />
-            <Route path="/produit/:id"    element={<ProductPage />} />
-            <Route path="/panier"         element={<CartPage />} />
-            <Route path="/commande"       element={<CheckoutPage />} />
-            <Route path="/merci/:orderNumber" element={<OrderSuccess />} />
-            <Route path="/suivi"          element={<OrderTracking />} />
-            <Route path="/customiser" element={<CustomizerPage />} />
+      <ProductsProvider>       {/* ← Cache partagé des produits (Home + ProductPage) */}
+        <SearchProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* ── Boutique ── */}
+              <Route path="/"               element={<HomePage />} />
+              <Route path="/boutique"       element={<ShopPage />} />
+              <Route path="/produit/:id"    element={<ProductPage />} />
+              <Route path="/panier"         element={<CartPage />} />
+              <Route path="/commande"       element={<CheckoutPage />} />
+              <Route path="/merci/:orderNumber" element={<OrderSuccess />} />
+              <Route path="/suivi"          element={<OrderTracking />} />
+              <Route path="/customiser" element={<CustomizerPage />} />
 
+              {/* ── Admin ── */}
+              <Route path="/admin/login"    element={<AdminLogin />} />
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/produits" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
+              <Route path="/admin/commandes" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
 
-            {/* ── Admin ── */}
-            <Route path="/admin/login"    element={<AdminLogin />} />
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/produits" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
-            <Route path="/admin/commandes" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
-
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </BrowserRouter>
-      </SearchProvider>
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </BrowserRouter>
+        </SearchProvider>
+      </ProductsProvider>
     </LanguageProvider>
   );
 }
