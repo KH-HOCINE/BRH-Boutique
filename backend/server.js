@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+// IMPORT du modèle Product pour créer les index au démarrage
+const Product = require('./models/Product');
+
 const app = express();
 
 // ─────────────────────────────────────────────
@@ -66,11 +69,30 @@ app.get('/', (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// Connexion MongoDB
+// Connexion MongoDB et création des index
 // ─────────────────────────────────────────────
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connecté');
+
+    // ── Création des index pour accélérer les requêtes ──
+    try {
+      // Index composé pour le filtre (isAvailable + isFeatured) très utilisé
+      await Product.collection.createIndex(
+        { isAvailable: 1, isFeatured: 1 },
+        { background: true }
+      );
+      
+      // Index pour le tri par date (création décroissante)
+      await Product.collection.createIndex(
+        { createdAt: -1 },
+        { background: true }
+      );
+
+      console.log('✅ Index MongoDB vérifiés/créés avec succès');
+    } catch (indexErr) {
+      console.warn('⚠️ Attention lors de la création des index :', indexErr.message);
+    }
 
     const PORT = process.env.PORT || 5000;
 

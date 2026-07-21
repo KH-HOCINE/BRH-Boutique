@@ -21,8 +21,13 @@ export default function HomePage() {
   const t = useT();
 
   useEffect(() => {
-    api.get('/products?featured=true')
-      .then(res => setFeatured(res.data.slice(0, 4)));
+    // On demande explicitement 4 produits vedettes
+    api.get('/products?featured=true&limit=4')
+      .then(res => {
+        // La réponse contient maintenant { products, total, ... }
+        setFeatured(res.data.products || []);
+      })
+      .catch(err => console.error('Erreur chargement produits :', err));
   }, []);
 
   return (

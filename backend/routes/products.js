@@ -18,10 +18,10 @@ const upload = multer({
 
 // ── Routes publiques ──────────────────────────────────────────
 
-// GET /api/products — tous les produits disponibles
+// GET /api/products — tous les produits disponibles (avec pagination)
 router.get('/', async (req, res) => {
   try {
-    const { category, search, featured } = req.query;
+    const { category, search, featured, limit, skip } = req.query;
     const filter = { isAvailable: true };
 
     if (category) filter.category = category;
@@ -34,8 +34,27 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    const products = await Product.find(filter).sort({ createdAt: -1 });
-    res.json(products);
+    // Pagination : si limit = 0 ou non défini, on renvoie tout (0 = infini)
+    const limitVal = parseInt(limit) || 0;
+    const skipVal  = parseInt(skip)  || 0;
+
+    // On utilise .lean() pour de meilleures performances (objets JS purs)
+    const products = await Product.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skipVal)
+      .limit(limitVal)
+      .lean();
+
+    // Compter le total pour la pagination (utile pour la boutique)
+    const total = await Product.countDocuments(filter);
+
+    res.json({
+      products,
+      total,
+      limit: limitVal,
+      skip: skipVal,
+      // pages: limitVal > 0 ? Math.ceil(total / limitVal) : 1,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -45,7 +64,7 @@ router.get('/', async (req, res) => {
 // ⚠️ Cette route doit être AVANT /:id pour ne pas être interceptée
 router.get('/admin/all', protect, async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find().sort({ createdAt: -1 }).lean();
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -55,7 +74,7 @@ router.get('/admin/all', protect, async (req, res) => {
 // GET /api/products/:id
 router.get('/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).lean();
     if (!product) return res.status(404).json({ message: 'Produit introuvable' });
     res.json(product);
   } catch (err) {
@@ -125,8 +144,6 @@ router.put('/:id', protect, upload.array('images', 5), async (req, res) => {
       const existing = await Product.findById(req.params.id);
       if (existing?.images?.length) {
         for (const url of existing.images) {
-          // Extraire le public_id depuis l'URL Cloudinary
-          // ex: https://res.cloudinary.com/demo/image/upload/v123/boutique-produits/abc.jpg
           const parts = url.split('/');
           const filenameWithExt = parts[parts.length - 1];
           const folder = parts[parts.length - 2];
