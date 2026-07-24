@@ -19,7 +19,6 @@ import {
   FaBox,
   FaTruck,
   FaMoneyBillWave,
-  FaCalendarAlt,
   FaEnvelope,
   FaPhone,
   FaPhoneAlt,
@@ -37,6 +36,7 @@ import {
   FaSpinner,
   FaExpand,
   FaCommentDots,
+  FaCalendarAlt,
 } from 'react-icons/fa';
 
 const STATUSES = ['Tous', 'En attente', 'Confirmée', 'Expédiée', 'Livrée', 'Annulée'];
@@ -594,7 +594,7 @@ export default function AdminOrders() {
                     <p><FaMapMarkerAlt /> <strong>Adresse:</strong>{selected.customer.commune}, {selected.customer.wilaya}</p>
                     <p>{selected.customer.address}</p>
                     <p><FaTruck /> <strong>Type de Livraison:</strong>{selected.customer.deliveryType === 'home' ? 'À domicile' : 'Stop Desk '}</p>
-                     <p>📅 <strong>Date et Heure de la commande: </strong>{new Date(selected.createdAt).toLocaleDateString('fr-DZ')} à {new Date(selected.createdAt).toLocaleTimeString('fr-DZ')}</p>
+                     <p><FaCalendarAlt /> <strong>Date et Heure de la commande: </strong>{new Date(selected.createdAt).toLocaleDateString('fr-DZ')} à {new Date(selected.createdAt).toLocaleTimeString('fr-DZ')}</p>
                   </div>
 
                   <div className="detail-section">
