@@ -27,4 +27,7 @@
 .orders-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .orders-table th { text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); border-bottom: 2px solid var(--gray-200); }
 .orders-table td { padding: 14px 12px; border-bottom: 1px solid var(--gray-100); }
-.orders-table tr:hover td { background: var(--gray-100); }
+
+/* ✅ Ligne cliquable : ouvre la modale de détail (comme dans AdminOrders) */
+.orders-table tr.tbl-row { cursor: pointer; transition: background .12s; }
+.orders-table tr.tbl-row:hover td { background: var(--gray-100); }
