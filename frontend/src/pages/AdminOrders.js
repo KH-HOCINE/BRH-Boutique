@@ -122,6 +122,14 @@ export default function AdminOrders() {
   const [wilayasLoading, setWilayasLoading]   = useState(false);
   const [communesLoading, setCommunesLoading] = useState(false);
 
+  // ─── NOUVEAU : sélection multiple ───
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // ─── Réinitialiser la sélection quand les paramètres d'affichage changent ───
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [page, filter, search, sortKey, sortDir]);
+
   const fetchOrders = () => {
     setLoading(true);
     api.get('/orders', { params: { limit: 500 } })
@@ -212,6 +220,47 @@ export default function AdminOrders() {
     delivered: orders.filter(o => o.status === 'Livrée').length,
     revenue:   orders.filter(o => o.status !== 'Annulée').reduce((s, o) => s + o.totalAmount, 0),
   }), [orders]);
+
+  // ─── Gestion de la sélection ───
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const pageIds = pageSlice.map(o => o._id);
+    const allSelected = pageIds.every(id => selectedIds.has(id));
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (allSelected) {
+        pageIds.forEach(id => newSet.delete(id));
+      } else {
+        pageIds.forEach(id => newSet.add(id));
+      }
+      return newSet;
+    });
+  };
+
+  // ─── Suppression en masse ───
+  const deleteSelected = async () => {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Supprimer définitivement ${selectedIds.size} commande(s) sélectionnée(s) ?`)) return;
+
+    try {
+      await api.delete('/orders/bulk', {
+        data: { ids: Array.from(selectedIds) },
+      });
+      toast.success(`${selectedIds.size} commande(s) supprimée(s)`);
+      setSelectedIds(new Set());
+      fetchOrders();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur lors de la suppression');
+    }
+  };
 
   const closeModal = () => {
     setModalOpen(false);
@@ -393,6 +442,19 @@ export default function AdminOrders() {
               onClick={() => { setFilter(s); setPage(1); }}>{s}</button>
           ))}
         </div>
+        {/* ─── NOUVEAU : actions en masse ─── */}
+        <div className="bulk-actions">
+          {selectedIds.size > 0 && (
+            <span className="selected-count">{selectedIds.size} sélectionnée(s)</span>
+          )}
+          <button
+            className="bulk-delete-btn"
+            onClick={deleteSelected}
+            disabled={selectedIds.size === 0}
+          >
+            <FaTrash /> Supprimer sélection
+          </button>
+        </div>
       </div>
 
       <div className="table-section">
@@ -403,6 +465,14 @@ export default function AdminOrders() {
             <table className="orders-table">
               <thead>
                 <tr>
+                  {/* ─── Case à cocher globale ─── */}
+                  <th className="select-cell">
+                    <input
+                      type="checkbox"
+                      checked={pageSlice.length > 0 && pageSlice.every(o => selectedIds.has(o._id))}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
                   <th>N° commande</th>
                   <th>Nom et prénom</th>
                   <th>Tél 1</th>
@@ -417,12 +487,20 @@ export default function AdminOrders() {
               </thead>
               <tbody>
                 {pageSlice.length === 0 ? (
-                  <tr><td colSpan={10} className="empty-cell">Aucune commande trouvée</td></tr>
+                  <tr><td colSpan={11} className="empty-cell">Aucune commande trouvée</td></tr>
                 ) : pageSlice.map(o => (
                   <tr key={o._id}
                     className={`tbl-row ${selected?._id === o._id ? 'tbl-active' : ''} ${o.status === 'Annulée' ? 'tbl-cancelled' : ''}`}
                     onClick={() => selectOrder(o)}
                   >
+                    {/* ─── Case à cocher individuelle ─── */}
+                    <td className="select-cell" onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(o._id)}
+                        onChange={() => toggleSelect(o._id)}
+                      />
+                    </td>
                     <td data-label="N° commande"><span className="order-num">{o.orderNumber}</span></td>
                     <td data-label="Nom et prénom"><span className="client-name">{o.customer.fullName}</span></td>
                     <td data-label="Tél 1">{o.customer.phone}</td>
@@ -508,14 +586,15 @@ export default function AdminOrders() {
               {!editMode && (
                 <>
                   <div className="detail-section">
-                    <h3><FaUser /> Client</h3>
-                    <p><strong>{selected.customer.fullName}</strong></p>
-                    <p><FaPhone /> {selected.customer.phone}</p>
-                    {selected.customer.phone2 && <p><FaPhoneAlt /> Secondaire : {selected.customer.phone2}</p>}
+                    <h3><FaUser /> Informations du client</h3>
+                    <p><FaUser /><strong>Nom et prénom :</strong>{selected.customer.fullName}</p>
+                    <p><FaPhone /> <strong>Téléphone N°01 :</strong> {selected.customer.phone}</p>
+                    {selected.customer.phone2 && <p><FaPhoneAlt /> <strong>Téléphone N°02 :</strong> {selected.customer.phone2}</p>}
                     {selected.customer.email  && <p><FaEnvelope /> {selected.customer.email}</p>}
-                    <p><FaMapMarkerAlt /> {selected.customer.commune}, {selected.customer.wilaya}</p>
+                    <p><FaMapMarkerAlt /> <strong>Adresse:</strong>{selected.customer.commune}, {selected.customer.wilaya}</p>
                     <p>{selected.customer.address}</p>
-                    <p><FaTruck /> {selected.customer.deliveryType === 'home' ? 'À domicile' : 'Stop Desk Anderson Express'}</p>
+                    <p><FaTruck /> <strong>Type de Livraison:</strong>{selected.customer.deliveryType === 'home' ? 'À domicile' : 'Stop Desk '}</p>
+                     <p>📅 <strong>Date et Heure de la commande: </strong>{new Date(selected.createdAt).toLocaleDateString('fr-DZ')} à {new Date(selected.createdAt).toLocaleTimeString('fr-DZ')}</p>
                   </div>
 
                   <div className="detail-section">
@@ -574,12 +653,12 @@ export default function AdminOrders() {
 
                           <div className="detail-item-info">
                             <span className="detail-item-name">
-                              {item.name}
-                              {item.size && ` (${item.size})`}
-                              {item.fit && ` - ${item.fit}`}
-                              {item.color && ` - ${item.color}`}
+                              <strong>Model:</strong>{item.name} /
+                              <strong>Taille:</strong>{item.size && ` ${item.size}`} /
+                              <strong>Coupe:</strong>{item.fit && `  ${item.fit}`} /
+                              <strong>Couleur:</strong>{item.color && `  ${item.color}`}
                             </span>
-                            <span className="detail-item-qty">x{item.quantity}</span>
+                            <span className="detail-item-qty"><strong>Nombre : x {item.quantity}</strong></span>
                             {/* ✅ Note du client sur son design */}
                             {item.custom && item.designNote && (
                               <span className="detail-item-designnote">
@@ -593,9 +672,9 @@ export default function AdminOrders() {
                         </div>
                       );
                     })}
-                    <div className="detail-shipping"><span><FaBox /> Sous-total</span><span>{(selected.subtotal ?? 0).toLocaleString('fr-DZ')} DA</span></div>
-                    <div className="detail-shipping"><span><FaTruck /> Livraison</span><span>{(selected.deliveryPrice ?? 0).toLocaleString('fr-DZ')} DA</span></div>
-                    <div className="detail-total"><span><FaMoneyBillWave /> Total TTC</span><span>{selected.totalAmount.toLocaleString('fr-DZ')} DA</span></div>
+                    <div className="detail-shipping"><span><FaBox /> Prix d'articles</span><span>{(selected.subtotal ?? 0).toLocaleString('fr-DZ')} DA</span></div>
+                    <div className="detail-shipping"><span><FaTruck /> Prix de livraison</span><span>{(selected.deliveryPrice ?? 0).toLocaleString('fr-DZ')} DA</span></div>
+                    <div className="detail-total"><span><FaMoneyBillWave /> Prix total </span><span>{selected.totalAmount.toLocaleString('fr-DZ')} DA</span></div>
                   </div>
 
                   {selected.notes && (
@@ -606,7 +685,7 @@ export default function AdminOrders() {
                   )}
 
                   <div className="detail-section">
-                    <h3><FaUndo /> Changer le statut</h3>
+                    <h3><FaUndo /> Changer le statut de la commande </h3>
                     <div className="status-btns">
                       {STATUS_OPTIONS.map(s => {
                         let icon;
@@ -628,11 +707,7 @@ export default function AdminOrders() {
                     </div>
                   </div>
 
-                  <div className="detail-section">
-                    <h3><FaCalendarAlt /> Informations</h3>
-                    <p>📅 {new Date(selected.createdAt).toLocaleDateString('fr-DZ')} à {new Date(selected.createdAt).toLocaleTimeString('fr-DZ')}</p>
-                    {selected.notificationSent && <p><FaEnvelope /> Email envoyé</p>}
-                  </div>
+
                 </>
               )}
 

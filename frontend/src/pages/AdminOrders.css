@@ -62,6 +62,42 @@
 .pill.active { background: var(--black); color: white; border-color: var(--black); }
 .pill:hover:not(.active) { border-color: var(--gray-400); }
 
+/* ─── NOUVEAU : actions en masse ─── */
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.bulk-actions .selected-count {
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.bulk-delete-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #fdecea;
+  color: var(--danger);
+  border: 1.5px solid #f5b7b1;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bulk-delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.bulk-delete-btn:hover:not(:disabled) {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+}
+
 /* ── Tableau ──────────────────────────────────────────── */
 .table-section { width: 100%; }
 .tbl-wrap {
@@ -92,6 +128,18 @@
 .tbl-row.tbl-active td { background: #e8f4fd; }
 .tbl-row.tbl-cancelled td { opacity: .6; }
 .orders-table td.text-right { text-align: right; }
+
+/* ─── Sélection : case à cocher ─── */
+.select-cell {
+  width: 40px;
+  text-align: center;
+}
+.select-cell input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--black);
+}
 
 .order-num    { font-weight: 600; font-size: 12px; color: var(--black); }
 .client-name  { font-weight: 500; }
@@ -213,11 +261,6 @@
 
 /* ═══════════════════════════════════════════════════════
    ✅ APERÇU FIDÈLE DU T-SHIRT PERSONNALISÉ
-   Reproduit EXACTEMENT le canvas du customizer :
-   un carré (aspect-ratio 1/1) avec le t-shirt en <img>
-   de base, et le design en <img> positionné en absolu
-   via les mêmes % (x, y, w, h) que ceux choisis par le
-   client. Aucune supposition de centrage.
    ═══════════════════════════════════════════════════════ */
 .tshirt-preview-group {
   display: flex;
@@ -530,6 +573,16 @@
   .search-box { width: 100%; }
   .filter-pills { width: 100%; padding-bottom: 4px; }
 
+  /* Actions en masse sur mobile */
+  .bulk-actions {
+    margin-left: 0;
+    justify-content: stretch;
+  }
+  .bulk-delete-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
   .tbl-wrap { border: none; background: transparent; overflow: visible; }
   .orders-table, .orders-table thead, .orders-table tbody,
   .orders-table th, .orders-table td, .orders-table tr {
@@ -556,6 +609,20 @@
   .orders-table td.text-right { text-align: right; }
   .row-actions { justify-content: flex-end; width: 100%; }
   .orders-table td:has(.row-actions)::before { content: 'Actions'; }
+
+  /* Cacher la colonne de sélection sur mobile ? On la garde mais on l'affiche proprement */
+  .orders-table .select-cell {
+    width: 100%;
+    justify-content: flex-start;
+    order: -1;
+  }
+  .orders-table .select-cell::before {
+    content: 'Sélectionner';
+  }
+  .orders-table .select-cell input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
 
   .city-main, .city-sub { text-align: right; }
   .price-total, .price-detail { text-align: right; }

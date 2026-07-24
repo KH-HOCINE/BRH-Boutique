@@ -183,7 +183,6 @@ router.put('/:id', protect, async (req, res) => {
           fit:      item.fit   || '',
           color:    item.color || '',
           image:    item.image || '',
-          // ✅ On préserve les designs (position exacte) et la note client
           designImages: item.designImages || [],
           designNote:   item.designNote   || '',
           custom:   item.custom || false,
@@ -219,6 +218,26 @@ router.put('/:id', protect, async (req, res) => {
   } catch (err) {
     console.error('PUT /orders/:id error:', err);
     res.status(400).json({ message: err.message });
+  }
+});
+
+// ─── NOUVEAU : Suppression en masse ─────────────────────
+// DELETE /api/orders/bulk — supprimer plusieurs commandes (admin)
+router.delete('/bulk', protect, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: 'Aucun ID fourni' });
+    }
+
+    const result = await Order.deleteMany({ _id: { $in: ids } });
+    res.json({
+      message: `${result.deletedCount} commande(s) supprimée(s)`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (err) {
+    console.error('DELETE /orders/bulk error:', err);
+    res.status(500).json({ message: err.message });
   }
 });
 
