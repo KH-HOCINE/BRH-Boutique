@@ -122,31 +122,51 @@ export default function ProductPage() {
     }
   };
 
-  const handleAddToCart = () => {
+  // ── Validation commune aux deux actions (Ajouter / Commander) ──────
+  const validateSelection = () => {
     if (product.sizes?.length > 0 && !size) {
       toast.warning(t('product.size_needed'));
-      return;
+      return false;
     }
     if (product.fits?.length > 0 && !fit && !CHILD_SIZES.includes(size)) {
       toast.warning(t('product.fit_needed'));
-      return;
+      return false;
     }
     if (product.colors?.length > 0 && !color) {
-      toast.warning(t('product.color_needed') || 'Veuillez sélectionner une couleur');
-      return;
+      toast.warning(t('product.color_needed'));
+      return false;
     }
+    return true;
+  };
+
+  const buildCartItem = () => ({
+    product: product._id,
+    name:    product.name,
+    price:   currentPrice,
+    image:   product.images?.[0] || '',
+    size, fit, color, quantity: qty,
+  });
+
+  const handleAddToCart = () => {
+    if (!validateSelection()) return;
+
     dispatch({
       type: 'ADD_ITEM',
-      payload: {
-        product: product._id,
-        name:    product.name,
-        price:   currentPrice,
-        image:   product.images?.[0] || '',
-        size, fit, color, quantity: qty,
-      },
+      payload: buildCartItem(),
     });
+
     trackAddToCart(product, qty);
     toast.success(t('product.added_to_cart'));
+  };
+
+  // ── AJOUT : Commander directement (sans passer par le panier) ──────
+  const handleBuyNow = () => {
+    if (!validateSelection()) return;
+
+    const buyNowItem = buildCartItem();
+
+    trackAddToCart(product, qty);
+    navigate('/commande', { state: { buyNowItem } });
   };
 
   const openLightbox  = () => setLightboxOpen(true);
@@ -298,9 +318,14 @@ export default function ProductPage() {
               {t('product.out_of_stock')}
             </button>
           ) : (
-            <button className="btn-primary add-btn" onClick={handleAddToCart}>
-              {t('product.add_to_cart')}
-            </button>
+            <div className="product-actions">
+              <button className="btn-secondary add-btn" onClick={handleAddToCart}>
+                {t('product.add_to_cart')}
+              </button>
+              <button className="btn-primary buy-now-btn" onClick={handleBuyNow}>
+                {t('product.buy_now')}
+              </button>
+            </div>
           )}
         </div>
       </div>

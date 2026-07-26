@@ -1,8 +1,9 @@
 // pages/CheckoutPage.js - Version Anderson Express (wilayas, communes filtrées par type et tarifs dynamiques)
 // ✅ Synchronisation avec Anderson + wilayaCode dans le payload
+// ✅ Support "Commander maintenant" (buyNowItem) sans passer par le panier
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../components/shop/Navbar';
 import Footer from '../components/Footer';   // ← ajout
@@ -20,10 +21,17 @@ import {
 const isValidPhone = (phone) => /^(05|06|07)\d{8}$/.test(phone);
 
 export default function CheckoutPage() {
-  const { cart, dispatch, total } = useCart();
+  const { cart, dispatch, total: cartTotal } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const t = useT();
   const [loading, setLoading] = useState(false);
+
+  // ── Achat direct depuis ProductPage ("Commander") ───────────
+  // Si présent, on ignore le panier et on ne commande que cet article.
+  const buyNowItem = location.state?.buyNowItem || null;
+  const items = buyNowItem ? [buyNowItem] : cart.items;
+  const total = buyNowItem ? buyNowItem.price * buyNowItem.quantity : cartTotal;
 
   // ── Livraison ──────────────────────────────────────────────
   const [deliveryType, setDeliveryType]     = useState('home'); // 'home' | 'office'
@@ -60,7 +68,7 @@ export default function CheckoutPage() {
         setWilayas(data.items || []);
       } catch (err) {
         console.error(err);
-        toast.error(t('checkout.wilayas_error', null, 'Impossible de charger les wilayas'));
+        toast.error(t('checkout.wilayas_error'));
       } finally {
         setWilayasLoading(false);
       }
@@ -83,7 +91,7 @@ export default function CheckoutPage() {
         setCommunes(data.items || []);
       } catch (err) {
         console.error(err);
-        toast.error(t('checkout.communes_error', null, 'Impossible de charger les communes'));
+        toast.error(t('checkout.communes_error'));
         setCommunes([]);
       } finally {
         setCommunesLoading(false);
@@ -115,7 +123,7 @@ export default function CheckoutPage() {
         setDeliveryPrice(data.price || 0);
       } catch (err) {
         console.error(err);
-        toast.error(t('checkout.price_error', null, 'Impossible de calculer le prix de livraison'));
+        toast.error(t('checkout.price_error'));
         setDeliveryPrice(0);
       } finally {
         setPriceLoading(false);
@@ -161,38 +169,36 @@ export default function CheckoutPage() {
     if (form.commune && !stillValid) {
       setForm(prev => ({ ...prev, commune: '' }));
       if (type === 'office') {
-        toast.info(
-          t('checkout.commune_reset_stopdesk', null, 'Veuillez choisir une commune avec Stop Desk disponible.')
-        );
+        toast.info(t('checkout.commune_reset_stopdesk'));
       }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (cart.items.length === 0) return;
+    if (items.length === 0) return;
 
     // ── Validations ──────────────────────────────────────────
     if (!form.fullName || !form.phone || !form.wilaya) {
-      toast.error(t('checkout.missing_fields', null, 'Remplissez tous les champs obligatoires'));
+      toast.error(t('checkout.missing_fields'));
       return;
     }
     if (!isValidPhone(form.phone)) {
-      toast.error(t('checkout.invalid_phone', null, 'Le numéro principal doit commencer par 05, 06 ou 07 et contenir 10 chiffres'));
+      toast.error(t('checkout.invalid_phone'));
       return;
     }
     if (form.phone2 && !isValidPhone(form.phone2)) {
-      toast.error(t('checkout.invalid_phone2', null, 'Le second numéro doit commencer par 05, 06 ou 07 et contenir 10 chiffres'));
+      toast.error(t('checkout.invalid_phone2'));
       return;
     }
     if (!form.commune) {
-      toast.error(t('checkout.commune_needed', null, 'Veuillez sélectionner votre commune'));
+      toast.error(t('checkout.commune_needed'));
       return;
     }
 
     // ✅ Validation spécifique : adresse obligatoire pour la livraison à domicile
     if (deliveryType === 'home' && !form.address.trim()) {
-      toast.error(t('checkout.address_required', null, 'Veuillez saisir votre adresse de livraison complète'));
+      toast.error(t('checkout.address_required'));
       return;
     }
 
@@ -201,7 +207,7 @@ export default function CheckoutPage() {
       // Construction de l'adresse finale
       const finalAddress = deliveryType === 'home'
         ? form.address
-        : `${t('checkout.office_fallback', null, 'Retrait Stop Desk Anderson Express')} — ${form.commune}, Wilaya ${form.wilaya}`;
+        : `${t('checkout.office_fallback')} — ${form.commune}, Wilaya ${form.wilaya}`;
 
       // ✅ Payload enrichi avec wilayaCode
       const payload = {
@@ -215,7 +221,7 @@ export default function CheckoutPage() {
           address:      finalAddress,
           deliveryType,
         },
-        items:         cart.items,
+        items:         items,
         notes:         form.notes,
         deliveryPrice: deliveryPrice,
       };
@@ -226,16 +232,21 @@ export default function CheckoutPage() {
       await api.post('/meta/purchase', {
         orderNumber: res.data.orderNumber,
         totalAmount: totalWithDelivery,
-        items:       cart.items,
+        items:       items,
         customer:    { phone: form.phone, phone2: form.phone2 || '' },
       }).catch(() => {});
 
-      trackPurchase(res.data.orderNumber, totalWithDelivery, cart.items);
-      dispatch({ type: 'CLEAR' });
+      trackPurchase(res.data.orderNumber, totalWithDelivery, items);
+
+      // On ne vide le panier que si ce n'était pas un achat direct
+      if (!buyNowItem) {
+        dispatch({ type: 'CLEAR' });
+      }
+
       navigate(`/merci/${res.data.orderNumber}`);
     } catch (err) {
       console.error('Erreur:', err.response?.data);
-      toast.error(err.response?.data?.message || t('checkout.order_error', null, 'Erreur lors de la commande'));
+      toast.error(err.response?.data?.message || t('checkout.order_error'));
     } finally {
       setLoading(false);
     }
@@ -296,7 +307,7 @@ export default function CheckoutPage() {
                 >
                   <option value="">
                     {wilayasLoading
-                      ? t('checkout.loading_wilayas', null, 'Chargement...')
+                      ? t('checkout.loading_wilayas')
                       : t('checkout.select_wilaya')}
                   </option>
                   {wilayas.map(w => (
@@ -346,7 +357,7 @@ export default function CheckoutPage() {
               <label>
                 <FaMapMarkerAlt className="input-icon" />{' '}
                 {deliveryType === 'office'
-                  ? t('checkout.bureau_label', null, 'Bureau')
+                  ? t('checkout.bureau_label')
                   : t('checkout.commune')} *
               </label>
               <select
@@ -360,9 +371,9 @@ export default function CheckoutPage() {
                   {!form.wilayaId
                     ? t('checkout.choose_wilaya_first')
                     : communesLoading
-                      ? t('checkout.loading_communes', null, 'Chargement...')
+                      ? t('checkout.loading_communes')
                       : deliveryType === 'office'
-                        ? t('checkout.choose_commune_stopdesk', null, 'Choisir un point Stop Desk')
+                        ? t('checkout.choose_commune_stopdesk')
                         : t('checkout.choose_commune')}
                 </option>
                 {filteredCommunes.map(c => (
@@ -376,7 +387,7 @@ export default function CheckoutPage() {
               )}
               {!communesLoading && form.wilayaId && deliveryType === 'office' && filteredCommunes.length === 0 && (
                 <small className="error-message">
-                  {t('checkout.no_stopdesk_in_wilaya', null, 'Aucun Stop Desk disponible dans cette wilaya. Choisissez la livraison à domicile.')}
+                  {t('checkout.no_stopdesk_in_wilaya')}
                 </small>
               )}
             </div>
@@ -416,7 +427,7 @@ export default function CheckoutPage() {
           {/* Récapitulatif commande */}
           <div className="order-recap">
             <h2>{t('checkout.your_order')}</h2>
-            {cart.items.map((item, i) => (
+            {items.map((item, i) => (
               <div key={i} className="recap-item">
                 <span className="recap-name">
                   {item.name} {item.size && `(${item.size})`} × {item.quantity}
