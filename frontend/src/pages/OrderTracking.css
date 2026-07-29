@@ -308,6 +308,7 @@
     flex-direction: column;
   }
   .track-input {
+    flex: none; 
     width: 100%;
     box-sizing: border-box;
   }
