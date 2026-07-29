@@ -132,26 +132,14 @@
   border-radius: 40px;
   transition: background 0.18s, color 0.18s, transform 0.1s;
   white-space: nowrap;
-  -webkit-tap-highlight-color: transparent; /* Supprime le surlignage par défaut sur mobile */
 }
 
 .lang-btn:hover {
   color: #C79659;
 }
 
-/* Modification de l'état actif : on supprime le scale pour éviter que le texte ne soit réduit sur mobile */
 .lang-btn:active {
-  /* transform: scale(0.92);  ← retiré */
-  opacity: 0.8; /* léger retour visuel sans masquer le texte */
-  transition: opacity 0.1s;
-}
-
-/* Sur les périphériques tactiles, on désactive complètement l'effet actif pour éviter tout problème */
-@media (hover: none) {
-  .lang-btn:active {
-    transform: none;
-    opacity: 1;
-  }
+  transform: scale(0.92);
 }
 
 .lang-btn--active {
@@ -334,7 +322,7 @@
 
   /* La recherche et la langue restent visibles */
   .navbar-search {
-    display: flex;
+    display: flex; /* s'assurer qu'il est affiché */
     max-width: 140px;
     margin: 0 8px;
   }
@@ -351,11 +339,10 @@
     padding: 2px;
     gap: 0;
   }
-  /* Augmentation du padding et de la taille pour une meilleure lisibilité sur mobile */
   .lang-btn {
-    padding: 6px 10px;
-    font-size: 11px;
-    min-width: 32px;
+    padding: 4px 6px;
+    font-size: 10px;
+    min-width: 26px;
     text-align: center;
   }
 
@@ -400,9 +387,8 @@
     font-size: 11px;
   }
   .lang-btn {
-    padding: 4px 8px; /* légèrement réduit mais toujours lisible */
-    font-size: 10px;
-    min-width: 28px;
+    padding: 3px 4px;
+    font-size: 9px;
   }
   .logo-image {
     height: 40px;
