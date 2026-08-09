@@ -28,6 +28,10 @@ const fr = {
   'home.custom.price_note':       'À partir de 2 950 DA · Prêt en 48–72h',
   'home.custom.tshirt_alt':       'T-shirt personnalisable',
 
+  // ── HomePage – Reviews Section ──
+  'home.reviews.title':    'Ce que disent nos clients',
+  'home.reviews.subtitle': 'Des milliers de clients satisfaits partout en Algérie',
+
   // ── ProductCard ──
   'product.featured':    'Coup de cœur',
   'product.sold_out':    'Épuisé',
@@ -236,6 +240,9 @@ const en = {
   'home.custom.cta':              'Create yours →',
   'home.custom.price_note':       'From 2,950 DA · Ready in 48–72h',
   'home.custom.tshirt_alt':       'Customizable T-shirt',
+// ── HomePage – Reviews Section ──
+  'home.reviews.title':    'What our customers say',
+  'home.reviews.subtitle': 'Thousands of satisfied customers across Algeria',
 
   // ── ProductCard ──
   'product.featured':    'Featured',
@@ -434,6 +441,11 @@ const ar = {
   'home.featured.title':   'المنتجات المميزة',
   'home.featured.see_all': 'عرض الكل',
   'home.featured.cta':     'اكتشف المجموعة الكاملة',
+
+  // ── HomePage – Reviews Section ──
+  'home.reviews.title':    'ماذا يقول عملاؤنا',
+  'home.reviews.subtitle': 'آلاف العملاء الراضين في جميع أنحاء الجزائر',
+  
 
   // ── HomePage – Custom Section ──
   'home.custom.eyebrow':          'تصميم مخصص',

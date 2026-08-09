@@ -15,6 +15,20 @@ import tshirtImg from '../images/Tshirt noir avant.png';
 import './CustomSection.css';
 import './HomePage.css';
 
+// Palette de couleurs pour les avatars (assortie à la charte du site)
+const AVATAR_COLORS = ['#C79659', '#2C2C2C', '#8A6D3B', '#4A4A4A', '#B08040', '#3D3D3D'];
+
+function getInitials(name) {
+  if (!name) return '';
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
   const t = useT();
@@ -25,6 +39,46 @@ export default function HomePage() {
     getFeatured().then(data => { if (mounted) setFeatured(data); });
     return () => { mounted = false; };
   }, [getFeatured]);
+
+  // Avis clients (statique pour l'instant — à remplacer par un fetch si besoin)
+  const reviews = [
+    {
+      name: 'Amina B.',
+      location: 'Bejaia',
+      rating: 5,
+      text: "Merci bien a propos la commande vraiment magnifique",
+    },
+    {
+      name: 'Yacine K.',
+      location: 'Oran',
+      rating: 5,
+      text: "Khoya l'ensemble hadak prada qualité w3ra zidli wahed noir la taille L",
+    },
+    {
+      name: 'Sarah M.',
+      location: 'Constantine',
+      rating: 4,
+      text: "Merci khoya lhqatni la commande vrai qouwa la qualité 🔥🔥",
+    },
+    {
+      name: 'Rachid H.',
+      location: 'Annaba',
+      rating: 5,
+      text: "yakho Wch nqolk hd ensemble marka hbb w still t3o hayl machallah kml fiha hbb w rebi ywfqk nchlh ❤️",
+    },
+    {
+      name: 'Lina C.',
+      location: 'Blida',
+      rating: 5,
+      text: "Khoya lhaqni l'ensemble vraiment kima qolt bonne qualité Bon courage a vous et merci",
+    },
+    {
+      name: 'Mohamed S.',
+      location: 'Sétif',
+      rating: 4,
+      text: "Rahi lahqt khoya Qualité wa3ra 💪💪💪",
+    },
+  ];
 
   return (
     <>
@@ -122,6 +176,51 @@ export default function HomePage() {
                 {t('home.custom.cta')}
               </Link>
               <span className="custom-price-note">{t('home.custom.price_note')}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="reviews-section">
+          <div className="container">
+            <div className="section-header reviews-header">
+              <h2>{t('home.reviews.title')}</h2>
+              <p className="reviews-subtitle">{t('home.reviews.subtitle')}</p>
+            </div>
+
+            <div className="reviews-grid">
+              {reviews.map((review, index) => (
+                <div className="review-card" key={index}>
+                  <div className="review-top">
+                    <div
+                      className="review-avatar"
+                      style={{ background: AVATAR_COLORS[index % AVATAR_COLORS.length] }}
+                    >
+                      {getInitials(review.name)}
+                    </div>
+                    <div className="review-author">
+                      <span className="review-location">{review.location}</span>
+                    </div>
+                  </div>
+
+                  <div className="review-stars">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <svg
+                        key={i}
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill={i < review.rating ? '#C79659' : 'none'}
+                        stroke="#C79659"
+                        strokeWidth="1.5"
+                      >
+                        <polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9" />
+                      </svg>
+                    ))}
+                  </div>
+
+                  <p className="review-text">« {review.text} »</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
