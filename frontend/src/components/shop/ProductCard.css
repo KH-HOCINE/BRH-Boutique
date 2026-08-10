@@ -78,6 +78,6 @@
 
 .product-price {
   font-size: 15px;
-  font-weight: 600;
-  color: var(--black);
+  font-weight: 700; /* ← MODIFIÉ : plus gras (était 600) */
+  color: #C79659;   /* ← MODIFIÉ : gold au lieu de var(--black) */
 }
