@@ -108,7 +108,7 @@
   transform: translateY(-50%) scale(0.9);
 }
 
-/* ── Sélecteur de langue ── */
+/* ── Sélecteur de langue desktop ── */
 .lang-switcher {
   display: flex;
   align-items: center;
@@ -208,7 +208,6 @@
   background: #C79659;
 }
 
-/* Animation croix quand ouvert */
 .hamburger-btn.is-open span:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
@@ -219,9 +218,44 @@
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* ── Menu mobile déroulant ── */
+/* ── Boutons icônes mobile (traduction / recherche) — cachés sur desktop ── */
+.lang-toggle-btn,
+.search-toggle-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  padding: 6px;
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.1s;
+}
+
+.lang-toggle-btn:hover,
+.search-toggle-btn:hover {
+  color: #C79659;
+}
+
+.lang-toggle-btn:active,
+.search-toggle-btn:active {
+  transform: scale(0.9);
+}
+
+.lang-toggle-btn.is-active {
+  color: #C79659;
+}
+
+/* ── Panneaux déroulants mobile ── */
+.mobile-search-bar,
+.mobile-lang-menu {
+  display: none;
+}
+
+/* ── Menu mobile déroulant (liens) ── */
 .mobile-menu {
-  display: none; /* affiché uniquement sur mobile via media query */
+  display: flex;
   flex-direction: column;
   padding: 8px 20px 16px;
   border-top: 1px solid #222;
@@ -313,54 +347,35 @@
   }
 }
 
-/* ── Mobile : bascule vers hamburger ── */
+/* ── Mobile : bascule vers icônes + hamburger ── */
 @media (max-width: 700px) {
-  /* On cache uniquement les liens de navigation */
-  .navbar-links {
-    display: none;
-  }
 
-  /* La recherche et la langue restent visibles */
-  .navbar-search {
-    display: flex; /* s'assurer qu'il est affiché */
-    max-width: 140px;
-    margin: 0 8px;
-  }
-  .navbar-search input {
-    padding: 8px 32px 8px 12px;
-    font-size: 12px;
-  }
-  .search-icon {
-    right: 6px;
-    width: 30px;
-  }
-
+  .navbar-links,
+  .navbar-search,
   .lang-switcher {
-    padding: 2px;
-    gap: 0;
-  }
-  .lang-btn {
-    padding: 4px 6px;
-    font-size: 10px;
-    min-width: 26px;
-    text-align: center;
-  }
-
-  .hamburger-btn {
-    display: flex;
-  }
-
-  .mobile-menu {
-    display: flex;
-  }
-
-  .logo-image {
-    height: 48px;
+    display: none;
   }
 
   .navbar-inner {
     padding: 10px 12px;
-    gap: 6px;
+    gap: 4px;
+  }
+
+  .hamburger-btn { display: flex; order: 1; }
+  .lang-toggle-btn { display: flex; order: 2; }
+
+  .navbar-logo {
+    order: 3;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .search-toggle-btn { display: flex; order: 4; }
+  .navbar-cart { order: 5; }
+
+  .logo-image {
+    height: 42px;
   }
 
   .navbar-cart svg {
@@ -374,23 +389,72 @@
     top: -6px;
     right: -6px;
   }
+
+  .mobile-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 16px;
+    border-top: 1px solid #222;
+    background: rgba(10, 10, 10, 0.98);
+    animation: slideDown 0.2s ease;
+  }
+
+  .mobile-search-bar input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1.5px solid #333;
+    border-radius: 40px;
+    background: transparent;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .mobile-search-bar input:focus {
+    border-color: #C79659;
+  }
+
+  .mobile-search-bar button {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+  }
+
+  .mobile-search-bar button:hover {
+    color: #C79659;
+  }
+
+  .mobile-lang-menu {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px 16px;
+    border-top: 1px solid #222;
+    background: rgba(10, 10, 10, 0.98);
+    animation: slideDown 0.2s ease;
+  }
+
+  .mobile-lang-menu .lang-btn {
+    background: #1a1a1a;
+    color: #aaa;
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 13px;
+  }
+
+  .mobile-lang-menu .lang-btn--active {
+    background: #fff;
+    color: #C79659;
+  }
 }
 
 /* ── Très petits écrans ── */
 @media (max-width: 480px) {
-  .navbar-search {
-    max-width: 100px;
-    margin: 0 4px;
-  }
-  .navbar-search input {
-    padding: 6px 28px 6px 8px;
-    font-size: 11px;
-  }
-  .lang-btn {
-    padding: 3px 4px;
-    font-size: 9px;
-  }
   .logo-image {
-    height: 40px;
+    height: 36px;
   }
 }
