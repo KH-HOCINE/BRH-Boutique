@@ -15,14 +15,33 @@
   max-width: 640px;
   margin: 0 auto;
   width: 100%;
-  flex: 1;  /* pousse le footer vers le bas si le contenu est court */
+  flex: 1;
+  text-align: center;   /* pousse le footer vers le bas si le contenu est court */
 }
 
 .track-title {
-  font-size: 32px;
-  font-weight: 600;
+  font-size: clamp(48px, 5vw, 76px);
+  line-height: 1.0;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -2px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 20px;
+  display: inline-block;
   margin-bottom: 8px;
-  color: var(--black);
+}
+
+.track-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: #111;
+  border-radius: 2px;
 }
 
 .track-sub {
@@ -30,6 +49,7 @@
   color: var(--gray-500);
   margin-bottom: 32px;
   line-height: 1.6;
+   text-align: center;
 }
 
 /* Formulaire de recherche */
