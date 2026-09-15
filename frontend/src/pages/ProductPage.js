@@ -13,7 +13,7 @@ import tshirtNoirArriere from '../images/Tshirt noir arriere.png';
 import tshirtBlancAvant from '../images/Tshirt blanc avant.png';
 import tshirtBlancArriere from '../images/Tshirt blanc arriere.png';
 
-const SIZE_ORDER   = ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL'];
+const SIZE_ORDER   = ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL','3XL','4XL'];
 const CHILD_SIZES  = ['6ans','8ans','10ans','12ans','14ans/Xs'];
 
 const TSHIRT_IMAGES = {
@@ -27,6 +27,8 @@ const SIZE_GUIDE_DATA = [
   { size: 'L',   a: 75, b: 57 },
   { size: 'XL',  a: 76, b: 60 },
   { size: 'XXL', a: 78, b: 62 },
+  { size: '3XL', a: 80, b: 64 }, // ⚠️ à remplacer par tes vraies mesures
+  { size: '4XL', a: 82, b: 66 }, // ⚠️ à remplacer par tes vraies mesures
 ];
 
 export default function ProductPage() {

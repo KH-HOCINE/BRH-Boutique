@@ -32,7 +32,7 @@ const productSchema = new mongoose.Schema({
   },
   sizes: [{
     type: String,
-    enum: ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL'],
+    enum: ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL','3XL','4XL'],
   }],
   fits: [{
     type: String,

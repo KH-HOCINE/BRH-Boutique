@@ -5,7 +5,7 @@ import api from '../utils/api';
 import './AdminProducts.css';
 
 const CATEGORIES = ['T-shirt', 'Hoodie', 'Sac à dos', 'Ensemble'];
-const ALL_SIZES  = ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL'];
+const ALL_SIZES  = ['6ans','8ans','10ans','12ans','14ans/Xs','S','M','L','XL','XXL','3XL','4XL'];
 const ALL_FITS   = ['Oversize', 'Regularsize'];
 
 // ⛔ Plus besoin de API_URL : les images sont des URLs Cloudinary complètes
@@ -233,7 +233,7 @@ export default function AdminProducts() {
                     min="0"
                     required
                   />
-                  <small className="field-hint">Tailles S,M,L,XL,XXL</small>
+                  <small className="field-hint">Tailles S,M,L,XL,XXL,3XL,4XL</small>
                 </div>
               </div>
 
