@@ -115,6 +115,13 @@ export default function OrderTracking() {
   const currency = t('common.currency');
   const locale   = lang === 'ar' ? 'ar-DZ' : lang === 'en' ? 'en-DZ' : 'fr-DZ';
 
+  // Libellés de la section livraison (FR / EN / AR)
+  const deliveryTypeLabel  = { fr: 'Type de livraison', en: 'Delivery type',  ar: 'نوع التوصيل' }[lang] || 'Type de livraison';
+  const deliveryPriceLabel = { fr: 'Prix de livraison', en: 'Delivery price', ar: 'سعر التوصيل' }[lang] || 'Prix de livraison';
+
+  // Prix de livraison : adapte le nom du champ si ton backend l'appelle autrement
+  const deliveryPrice = order?.deliveryPrice ?? order?.shippingCost ?? order?.deliveryFee ?? null;
+
   return (
     <div className="track-page-wrapper">
       <Navbar />
@@ -195,13 +202,21 @@ export default function OrderTracking() {
                 <p className="track-info-cell__value">{order.customer.commune}</p>
               </div>
               <div className="track-info-cell">
-                <p className="track-info-cell__label">{t('tracking.delivery_type')}</p>
+                <p className="track-info-cell__label">{deliveryTypeLabel}</p>
                 <p className="track-info-cell__value">
                   {order.customer.deliveryType === 'office'
                     ? t('tracking.delivery.office')
                     : t('tracking.delivery.home')}
                 </p>
               </div>
+              {deliveryPrice !== null && (
+                <div className="track-info-cell">
+                  <p className="track-info-cell__label">{deliveryPriceLabel}</p>
+                  <p className="track-info-cell__value">
+                    {Number(deliveryPrice).toLocaleString(locale)} {currency}
+                  </p>
+                </div>
+              )}
               {order.notes && (
                 <div className="track-info-cell track-info-cell--full">
                   <p className="track-info-cell__label">{t('tracking.notes')}</p>
