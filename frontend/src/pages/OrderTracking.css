@@ -10,13 +10,16 @@
 }
 
 /* ---- Contenu de la page ---- */
-.track-page {
-  padding: 60px 20px 30px;   /* plus de marge basse inutile */
+.track-page-wrapper .track-page {
+  padding: 80px 20px 120px;   /* espace sous le header (le bas plus grand remonte légèrement le centre) */
   max-width: 640px;
   margin: 0 auto;
   width: 100%;
   flex: 1;
-  text-align: center;   /* pousse le footer vers le bas si le contenu est court */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* centre le contenu verticalement entre header et footer */
 }
 
 .track-title {
@@ -30,6 +33,8 @@
   padding-bottom: 20px;
   display: inline-block;
   margin-bottom: 8px;
+  white-space: nowrap;   /* le titre reste sur une seule ligne */
+  align-self: center;    /* reste centré même s'il est plus large que le bloc */
 }
 
 .track-title::after {
@@ -324,6 +329,10 @@
 
 /* Responsive */
 @media (max-width: 500px) {
+  .track-title {
+    font-size: clamp(26px, 9vw, 40px);   /* évite le débordement sur mobile */
+    letter-spacing: -1px;
+  }
   .track-form {
     flex-direction: column;
   }
