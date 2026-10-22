@@ -295,6 +295,14 @@ export default function Navbar() {
             {t('nav.tracking')}
           </Link>
 
+          <Link
+    to="/customiser"
+    className={pathname === '/customiser' ? 'active' : ''}
+    onClick={closeMenu}
+  >
+    {t('nav.customize')}
+  </Link>
+
         </div>
 
         {/* ======================================================

@@ -6,6 +6,7 @@ const fr = {
   'nav.home':     'Accueil',
   'nav.catalog':  'Catalogue',
   'nav.tracking': 'Suivre ma commande',
+  'nav.customize': 'Personnalisé',
   'nav.search':   'Rechercher un article ou un anime…',
 
   // ── HomePage ──
@@ -219,6 +220,7 @@ const en = {
   'nav.home':     'Home',
   'nav.catalog':  'Catalogue',
   'nav.tracking': 'Track my order',
+  'nav.customize': 'Customize',
   'nav.search':   'Search an item or anime…',
 
   // ── HomePage ──
@@ -431,6 +433,7 @@ const ar = {
   'nav.home':     'الرئيسية',
   'nav.catalog':  'الكتالوج',
   'nav.tracking': 'تتبع طلبي',
+  'nav.customize': 'تخصيص',
   'nav.search':   'ابحث عن منتج أو أنمي…',
 
   // ── HomePage ──
