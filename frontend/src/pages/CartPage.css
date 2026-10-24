@@ -35,6 +35,27 @@
   gap: 24px;
 }
 
+/* Texte "Votre panier est vide" */
+.empty-cart h2 {
+  font-size: 44px;
+  line-height: 1.2;
+}
+
+/* Bouton "Découvrir toute la collection" */
+.empty-cart .btn-primary {
+  padding: 20px 44px;
+  font-size: 18px;
+  border-radius: 10px;
+}
+
+@media (max-width: 600px) {
+  .empty-cart h2 { font-size: 30px; }
+  .empty-cart .btn-primary {
+    padding: 16px 28px;
+    font-size: 15px;
+  }
+}
+
 .cart-layout {
   display: grid;
   grid-template-columns: 1fr 360px;
