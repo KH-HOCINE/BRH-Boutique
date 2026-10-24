@@ -1,4 +1,18 @@
-.shop-page { padding: 40px 0 80px; }
+/* Layout : le footer reste toujours collé en bas de la page */
+.shop-layout {
+  min-height: 100vh;
+  min-height: 100dvh; /* mobile : tient compte de la barre d'adresse */
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-page {
+  flex: 1 0 auto; /* prend tout l'espace libre et pousse le footer en bas */
+  width: 100%;
+  padding: 40px 0 80px;
+}
+
+.shop-layout > .footer { flex-shrink: 0; }
 
 .shop-title {
   font-size: 86px;

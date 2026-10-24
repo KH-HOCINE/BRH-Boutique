@@ -51,7 +51,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div>
+    <div className="shop-layout">
       <Navbar />
       <div className="container shop-page">
         <h1 className="shop-title">{t('shop.title')}</h1>
