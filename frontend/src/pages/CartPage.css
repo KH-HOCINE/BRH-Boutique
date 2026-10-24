@@ -31,6 +31,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;  /* centre le contenu verticalement entre la navbar et le footer */
   gap: 24px;
 }
 
