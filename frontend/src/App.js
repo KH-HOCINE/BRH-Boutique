@@ -6,6 +6,7 @@ import { SearchProvider } from './context/SearchContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { ProductsProvider } from './context/ProductsContext'; // ← Ajout
 import CustomizerPage from './pages/CustomizerPage';
+import ScrollToTop from './components/ScrollToTop'; // ← Ajout : remonte en haut à chaque changement de page
 // ...
 
 // Pages boutique
@@ -39,6 +40,7 @@ function App() {
       <ProductsProvider>       {/* ← Cache partagé des produits (Home + ProductPage) */}
         <SearchProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               {/* ── Boutique ── */}
               <Route path="/"               element={<HomePage />} />
